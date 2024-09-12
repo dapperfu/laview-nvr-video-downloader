@@ -1,9 +1,10 @@
 #!/usr/bin/python3
-# 2020-04-16
+# 2024-09-11
 
 # ====== Parameters ======
-user_name = 'admin'
-user_password = 'qwer1234'
+import os
+user_name = os.getenv("LAVIEW_NVR_USER")
+user_password = os.getenv("LAVIEW_NVR_PASS")
 # ====================================================================
 # write logs to log files (False/True)
 write_logs = True
@@ -42,6 +43,8 @@ from requests.auth import HTTPBasicAuth
 from requests.auth import HTTPDigestAuth
 from xml.etree import ElementTree
 from datetime import timedelta
+from xml.etree.ElementTree import Element, SubElement, ElementTree, tostring
+import uuid
 
 # from src.track import Track
 # ================= START track ===================
@@ -199,33 +202,6 @@ class CameraSdk:
     __REBOOT_URL = '/ISAPI/System/reboot'
 
     # =============================== URLS ===============================
-
-    __SEARCH_VIDEO_XML = """\
-<?xml version='1.0' encoding='utf-8'?>
-<CMSearchDescription>
-    <searchID>18cc5217-3de6-408a-ac9f-2b80af05cadf</searchID>
-    <trackIDList>
-        <trackID>101</trackID>
-    </trackIDList>
-    <timeSpanList>
-        <timeSpan>
-            <startTime>start_time</startTime>
-            <endTime>end_time</endTime>
-        </timeSpan>
-    </timeSpanList>
-    <maxResults>40</maxResults>
-    <searchResultPostion>0</searchResultPostion>
-    <metadataList>
-        <metadataDescriptor>//recordType.meta.std-cgi.com</metadataDescriptor>
-    </metadataList>
-</CMSearchDescription>"""
-
-    __DOWNLOAD_REQUEST_XML = """\
-<?xml version='1.0'?>
-<downloadRequest>
-    <playbackURI></playbackURI>
-</downloadRequest>"""
-
     @classmethod
     def init(cls, default_timeout_seconds):
         cls.default_timeout_seconds = default_timeout_seconds
@@ -304,10 +280,14 @@ class CameraSdk:
 
     @classmethod
     def download_file(cls, auth_handler, cam_ip, file_uri, file_name):
-        request = ElementTree.fromstring(cls.__DOWNLOAD_REQUEST_XML)
-        playback_uri = request.find('playbackURI')
+        # Create the root element
+        download_request = Element('downloadRequest')
+
+        # Add playbackURI
+        playback_uri = SubElement(download_request, 'playbackURI')
         playback_uri.text = file_uri
-        request_data = ElementTree.tostring(request, encoding='utf8', method='xml')
+
+        request_data = ElementTree.tostring(download_request, encoding='utf8', method='xml')
 
         url = cls.__get_service_url(cam_ip, cls.__DOWNLOAD_VIDEO_URL)
         answer = requests.get(url=url, auth=auth_handler, data=request_data, stream=True, timeout=cls.default_timeout_seconds)
@@ -336,28 +316,46 @@ class CameraSdk:
             finally:
                 s.close()
         return False
-
+    
     @classmethod
     def get_video_tracks_info(cls, auth_handler, cam_ip, utc_time_interval, max_videos):
-        request = ElementTree.fromstring(cls.__SEARCH_VIDEO_XML)
+        # Create the root element
+        cm_search_description = Element('CMSearchDescription')
 
-        search_id = request.find('searchID')
-        search_id.text = str(uuid.uuid1()).upper()
+        # Add searchID
+        search_id = SubElement(cm_search_description, 'searchID')
+        search_id.text = str(uuid.uuid4()).upper()  # Generate a unique search ID
 
-        max_results_count = request.find('maxResults')
-        max_results_count.text = str(max_videos)
+        # Add trackIDList
+        camera = 3
+        track_id_list = SubElement(cm_search_description, 'trackIDList')
+        track_id = SubElement(track_id_list, 'trackID')
+        track_id.text = f'{camera}01'
 
-        time_span = request.find('timeSpanList').find('timeSpan')
+        # Add timeSpanList
+        time_span_list = SubElement(cm_search_description, 'timeSpanList')
+        time_span = SubElement(time_span_list, 'timeSpan')
 
-        start_time_tz_text, end_time_tz_text = utc_time_interval.to_tz_text()
-
-        start_time_element = time_span.find('startTime')
+        start_time_element = SubElement(time_span, 'startTime')
         start_time_element.text = start_time_tz_text
 
-        end_time_element = time_span.find('endTime')
+        end_time_element = SubElement(time_span, 'endTime')
         end_time_element.text = end_time_tz_text
 
-        request_data = ElementTree.tostring(request, encoding='utf8', method='xml')
+        # Add maxResults
+        max_results = SubElement(cm_search_description, 'maxResults')
+        max_results.text = str(max_videos)
+
+        # Add searchResultPosition
+        search_result_position = SubElement(cm_search_description, 'searchResultPostion')
+        search_result_position.text = '0'
+
+        # Add metadataList
+        metadata_list = SubElement(cm_search_description, 'metadataList')
+        metadata_descriptor = SubElement(metadata_list, 'metadataDescriptor')
+        metadata_descriptor.text = '//recordType.meta.std-cgi.com'
+
+        request_data = ElementTree.tostring(cm_search_description, encoding='utf8', method='xml')
         answer = cls.__make_get_request(auth_handler, cam_ip, cls.__SEARCH_VIDEO_URL, request_data)
 
         return answer
@@ -391,31 +389,15 @@ class CameraSdk:
     def __make_get_request(cls, auth_handler, cam_ip, url, request_data=None):
         return requests.get(url=cls.__get_service_url(cam_ip, url), auth=auth_handler, data=request_data, timeout=cls.default_timeout_seconds)
 
-    @staticmethod
-    def __replace_subelement_with(parent, new_subelement):
-        subelement_tag = new_subelement.tag
-        subelement = parent.find(subelement_tag)
-        parent.remove(subelement)
-
-        parent.append(new_subelement)
-        return parent
-
-    @staticmethod
-    def __replace_subelement_body_with(parent, subelement_tag, new_body_text):
-        subelement = parent.find(subelement_tag)
-        subelement.clear()
-        inner_element = ElementTree.fromstring(new_body_text)
-        subelement.append(inner_element)
-        return parent
 # ================= END camera_sdk ===================
-# from src.logger import Logger
+
 # ================= START logger ===================
 import logging
 import logging.handlers
 
 
 class Logger:
-    LOGGER_NAME = 'hik_video_downloader'
+    LOGGER_NAME = 'laview_video_downloader'
 
     @staticmethod
     def init_logger(write_logs, path_to_log_file, max_bytes_log_size, max_log_files_count):
@@ -442,7 +424,7 @@ class Logger:
     def get_logger():
         return logging.getLogger(Logger.LOGGER_NAME)
 # ================= END logger ===================
-# from src.log_wrapper import logging_wrapper
+
 # ================= START log_wrapper ===================
 def logging_wrapper(before=None, after=None):
     def log_decorator(func):
@@ -461,7 +443,7 @@ def logging_wrapper(before=None, after=None):
 
     return log_decorator
 # ================= END log_wrapper ===================
-# from src.log_printer import *
+
 # ================= START log_printer ===================
 
 
@@ -526,7 +508,7 @@ LOGGER_NAME = 'hik_video_downloader'
 
 
 def get_path_to_video_archive(cam_ip: str):
-    return path_to_video_archive + cam_ip + '/'
+    return os.path.join(path_to_video_archive, cam_ip)
 
 
 def download_videos(auth_handler, cam_ip, utc_time_interval):
@@ -573,7 +555,7 @@ def download_tracks(tracks, auth_handler, cam_ip):
 
 def download_file_with_retry(auth_handler, cam_ip, track):
     start_time_text = track.get_time_interval().to_local_time().to_filename_text()
-    file_name = get_path_to_video_archive(cam_ip) + '/' + start_time_text + video_file_extension
+    file_name = os.path.join(get_path_to_video_archive(cam_ip), start_time_text + video_file_extension)
     url_to_download = track.url_to_download()
 
     create_directory_for(file_name)
