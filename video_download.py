@@ -22,12 +22,13 @@ DELAY_BETWEEN_DOWNLOADING_FILES_SECONDS = 1
 video_file_extension = ".mp4"
 
 # ====================================================================
-
 import sys
 import time
 import requests
 import argparse
 from datetime import timedelta
+from typing import Optional
+from argparse import Namespace
 
 # from src.camera_sdk import CameraSdk, AuthType
 # ================= START camera_sdk ===================
@@ -53,7 +54,7 @@ from datetime import datetime
 class TimeInterval:
     __tz_format = "%Y-%m-%dT%H:%M:%SZ"
     __common_format = "%Y-%m-%d %H:%M:%S"
-    __filename_format = "%Y-%m-%d/%H_%M_%S"
+    __filename_format = "%Y-%m-%d_%H_%M_%S"
 
     def __init__(self, start_time, end_time, local_time_offset=timedelta()):
         self.local_time_offset = local_time_offset
@@ -445,7 +446,7 @@ import logging.handlers
 
 
 class Logger:
-    LOGGER_NAME = "hik_video_downloader"
+    LOGGER_NAME = "laview_video_downloader"
 
     @staticmethod
     def init_logger(
@@ -491,7 +492,7 @@ def logging_wrapper(before=None, after=None):
     def log_decorator(func):
         def wrapper_func(*args, **kwargs):
             if before is not None:
-                before(*args, **kwargs)
+                before(*args, **kwargs):
 
             result = func(*args, **kwargs)
 
@@ -553,10 +554,8 @@ class LogPrinter:
 
 
 # ================= END log_printer ===================
-# from src.utils import *
-# ================= START utils ===================
-import os
 
+# ================= START utils ===================
 
 def create_directory_for(file_path):
     directory = os.path.dirname(file_path)
@@ -575,7 +574,8 @@ LOGGER_NAME = "hik_video_downloader"
 
 
 def get_path_to_video_archive(cam_ip: str):
-    return os.path.join(path_to_video_archive, cam_ip)
+    camera=os.getenv("CAMERA", "1")
+    return os.path.join(path_to_video_archive, cam_ip, f"camera{camera}")
 
 
 def download_videos(auth_handler, cam_ip, utc_time_interval):
@@ -675,10 +675,15 @@ def init(cam_ip):
 def do_work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time):
     logger = Logger.get_logger()
     try:
-        logger.info("Processing cam {}:".format(camera_ip))
+        camera=os.getenv("CAMERA", "1")
+        logger.info(f"Processing IP {camera_ip}.")
+        logger.info(f"Processing Camera {camera}.")
         logger.info(
             "{} time is used".format("UTC" if use_utc_time else "Camera's local")
         )
+
+        user_name = os.getenv("LAVIEW_NVR_USER")
+        user_password = os.getenv("LAVIEW_NVR_PASS")
 
         auth_type = CameraSdk.get_auth_type(camera_ip, user_name, user_password)
         if auth_type == AuthType.UNAUTHORISED:
@@ -704,14 +709,15 @@ def do_work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time):
         logger.exception(e)
 
 
-def parse_parameters():
+def parse_parameters() -> Optional[Namespace]:
     usage = """
   %(prog)s [-u] CAM_IP START_DATE START_TIME END_DATE END_TIME"""
 
     epilog = """
 Examples:
-  %(prog)s 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
-  %(prog)s -u 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
+  python %(prog)s 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
+  CAMERA=2 python %(prog)s 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
+  
         """
 
     parser = argparse.ArgumentParser(
@@ -720,14 +726,8 @@ Examples:
     parser.add_argument("IP", help="camera's IP address")
     parser.add_argument("START_DATE", help="start date of interval")
     parser.add_argument("START_TIME", help="start time of interval")
-    parser.add_argument("END_DATE", help="end date of interval")
-    parser.add_argument("END_TIME", help="end time of interval")
-    parser.add_argument(
-        "-u",
-        "--utc",
-        help="use parameters as UTC time, otherwise use as camera's local time",
-        action="store_true",
-    )
+    parser.add_argument("END_DATE", nargs="?", help="end date of interval", default=datetime.now().strftime("%Y-%m-%d"))
+    parser.add_argument("END_TIME", nargs="?", help="end time of interval", default=datetime.now().strftime("%H:%M:%S"))
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -741,20 +741,20 @@ def main():
     parameters = parse_parameters()
     if parameters:
         try:
+            setattr(parameters, 'utc', True)
             camera_ip = parameters.IP
             init(camera_ip)
 
             start_datetime_str = parameters.START_DATE + " " + parameters.START_TIME
-            end_datetime_str = parameters.END_DATE + " " + parameters.END_TIME
+            end_datetime_str = str(parameters.END_DATE + " " + parameters.END_TIME)
 
             do_work(camera_ip, start_datetime_str, end_datetime_str, parameters.utc)
 
         except KeyboardInterrupt:
-            print("")
-            pass
+            print("^-C: Exited")
 
         except Exception as e:
-            print(e)
+            raise(e)
 
 
 if __name__ == "__main__":
