@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 # 2024-09-11
 # ====== Parameters ======
-import os
 
-user_name = os.getenv("LAVIEW_NVR_USER")
-user_password = os.getenv("LAVIEW_NVR_PASS")
 # ====================================================================
 # write logs to log files (False/True)
 write_logs = True
@@ -21,34 +18,21 @@ DELAY_BETWEEN_DOWNLOADING_FILES_SECONDS = 1
 
 video_file_extension = ".mp4"
 
-# ====================================================================
+import argparse
+import re
+import shutil
+import socket
 import sys
 import time
-import requests
-import argparse
-from datetime import timedelta
-from typing import Optional
-from argparse import Namespace
-
-# from src.camera_sdk import CameraSdk, AuthType
-# ================= START camera_sdk ===================
-import re
-import socket
 import uuid
-
-import shutil
-
-from requests.auth import HTTPBasicAuth
-from requests.auth import HTTPDigestAuth
+from argparse import Namespace
+from datetime import datetime, timedelta
+from typing import Optional
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement
 
-# from src.track import Track
-# ================= START track ===================
-from datetime import datetime
-
-# from src.time_interval import TimeInterval
-# ================= START time_interval ===================
+import requests
+from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
 
 class TimeInterval:
