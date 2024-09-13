@@ -8,7 +8,8 @@ import shutil
 
 from requests.auth import HTTPBasicAuth
 from requests.auth import HTTPDigestAuth
-from xml.etree import ElementTree
+from xml.etree import ElementTree 
+from xml.etree.ElementTree import Element, SubElement
 from datetime import timedelta
 
 from src.track import Track
@@ -62,33 +63,6 @@ class CameraSdk:
     __REBOOT_URL = '/ISAPI/System/reboot'
 
     # =============================== URLS ===============================
-
-    __SEARCH_MEDIA_XML = """\
-<?xml version='1.0' encoding='utf-8'?>
-<CMSearchDescription>
-    <searchID>18cc5217-3de6-408a-ac9f-2b80af05cadf</searchID>
-    <trackIDList>
-        <trackID>101</trackID>
-    </trackIDList>
-    <timeSpanList>
-        <timeSpan>
-            <startTime>start_time</startTime>
-            <endTime>end_time</endTime>
-        </timeSpan>
-    </timeSpanList>
-    <maxResults>40</maxResults>
-    <searchResultPostion>0</searchResultPostion>
-    <metadataList>
-        <metadataDescriptor>//recordType.meta.std-cgi.com</metadataDescriptor>
-    </metadataList>
-</CMSearchDescription>"""
-
-    __DOWNLOAD_REQUEST_XML = """\
-<?xml version='1.0'?>
-<downloadRequest>
-    <playbackURI></playbackURI>
-</downloadRequest>"""
-
     @classmethod
     def init(cls, default_timeout_seconds):
         cls.default_timeout_seconds = default_timeout_seconds
@@ -167,9 +141,13 @@ class CameraSdk:
 
     @classmethod
     def download_file(cls, auth_handler, cam_ip, file_uri, file_name):
-        request = ElementTree.fromstring(cls.__DOWNLOAD_REQUEST_XML)
-        playback_uri = request.find('playbackURI')
+        # Create the root element
+        request = Element('downloadRequest')
+
+        # Add playbackURI
+        playback_uri = SubElement(request, 'playbackURI')
         playback_uri.text = file_uri
+
         request_data = ElementTree.tostring(request, encoding='utf8', method='xml')
 
         url = cls.__get_service_url(cam_ip, cls.__DOWNLOAD_MEDIA_URL)
@@ -215,26 +193,45 @@ class CameraSdk:
 
     @classmethod
     def get_tracks_info(cls, auth_handler, cam_ip, utc_time_interval, max_videos, track_id):
-        request = ElementTree.fromstring(cls.__SEARCH_MEDIA_XML)
+        # Create the root element
+        request = Element('CMSearchDescription')
 
-        search_id = request.find('searchID')
-        search_id.text = str(uuid.uuid1()).upper()
+        # Add searchID
+        search_id = SubElement(request, 'searchID')
+        search_id.text = str(uuid.uuid4()).upper() # Generate a unique search ID
 
-        max_results_count = request.find('maxResults')
-        max_results_count.text = str(max_videos)
+        # Add trackIDList
+        track_id_list = SubElement(request, 'trackIDList')
+        track_id = SubElement(track_id_list, 'trackID')
+        track_id.text = track_id
 
-        track_id_element = request.find('trackIDList').find('trackID')
-        track_id_element.text = str(track_id)
+        # Add timeSpanList
+        time_span_list = SubElement(request, 'timeSpanList')
+        time_span = SubElement(time_span_list, 'timeSpan')
 
-        time_span = request.find('timeSpanList').find('timeSpan')
-
+        # Calculate time.
         start_time_tz_text, end_time_tz_text = utc_time_interval.to_tz_text()
 
-        start_time_element = time_span.find('startTime')
+        start_time_element = SubElement(time_span, 'startTime')
         start_time_element.text = start_time_tz_text
 
-        end_time_element = time_span.find('endTime')
+        end_time_element = SubElement(time_span, 'endTime')
         end_time_element.text = end_time_tz_text
+
+        # Add maxResults
+        max_results = SubElement(request, 'maxResults')
+        max_results.text = str(max_videos)
+
+        # Add searchResultPosition
+        search_result_position = SubElement(request, 'searchResultPostion')
+        search_result_position.text = '0'
+
+        # Add metadataList
+        metadata_list = SubElement(request, 'metadataList')
+        metadata_descriptor = SubElement(metadata_list, 'metadataDescriptor')
+        metadata_descriptor.text = '//recordType.meta.std-cgi.com'
+
+
 
         request_data = ElementTree.tostring(request, encoding='utf8', method='xml')
         answer = cls.__make_post_request(auth_handler, cam_ip, cls.__SEARCH_MEDIA_URL, request_data)
