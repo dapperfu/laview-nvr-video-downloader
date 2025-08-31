@@ -38,7 +38,8 @@ def work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time, camera_c
             start_datetime_str, end_datetime_str, local_time_offset
         ).to_utc()
 
-        download_videos(auth_handler, camera_ip, camera_channel)
+        tracks = get_all_tracks(auth_handler, camera_ip, utc_time_interval, camera_channel)
+        download_videos(tracks, auth_handler, camera_ip, camera_channel)
 
     except requests.exceptions.ConnectionError as e:
         logger.error("Connection error: {}".format(e))

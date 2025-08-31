@@ -68,7 +68,7 @@ def logging_wrapper(before=None, after=None):
 
 class LogPrinter:
     @staticmethod
-    def get_all_tracks(_1, _2, utc_time_interval):
+    def get_all_tracks(_1, _2, utc_time_interval, _3=None):
         start_time_text, end_time_text = utc_time_interval.to_local_time().to_text()
 
         Logger.get_logger().info("Start time: {}".format(start_time_text))
@@ -83,7 +83,7 @@ class LogPrinter:
             Logger.get_logger().error(error_message)
 
     @staticmethod
-    def download_tracks(tracks, _1, _2):
+    def download_tracks(tracks, _1, _2, _3=None):
         Logger.get_logger().info("Found {} files".format(len(tracks)))
 
     @staticmethod

@@ -19,6 +19,7 @@ from .track import Track
 from .utils import create_directory_for
 from .utils import DEFAULT_TIMEOUT_SECONDS
 from .utils import get_path_to_video_archive
+from .utils import MAX_VIDEOS_NUMBER_IN_ONE_REQUEST
 
 MAX_BYTES_LOG_FILE_SIZE = 100000
 MAX_LOG_FILES_COUNT = 20
@@ -236,6 +237,10 @@ class CameraSdk:
         answer_xml = ElementTree.fromstring(answer_text)
 
         match_list = answer_xml.find("matchList")
+        if match_list is None:
+            # No videos found in the specified time range
+            return []
+            
         match_items = match_list.findall("searchMatchItem")
 
         tracks = []

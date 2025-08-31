@@ -21,8 +21,7 @@ def get_path_to_video_archive(cam_ip: str, camera_channel: int = 1):
     return os.path.join(path_to_video_archive, cam_ip, f"camera{camera_channel}")
 
 
-def download_videos(auth_handler, cam_ip, camera_channel=1):
-    tracks = get_all_tracks(auth_handler, cam_ip, camera_channel)
+def download_videos(tracks, auth_handler, cam_ip, camera_channel=1):
     download_tracks(tracks, auth_handler, cam_ip, camera_channel)
 
 
@@ -44,6 +43,8 @@ def download_tracks(tracks, auth_handler, cam_ip, camera_channel=1):
 
 
 def download_file_with_retry(auth_handler, cam_ip, track, camera_channel=1):
+    from .camerasdk import CameraSdk
+    
     start_time_text = track.get_time_interval().to_local_time().to_filename_text()
     file_name = os.path.join(
         get_path_to_video_archive(cam_ip, camera_channel), start_time_text + video_file_extension
@@ -65,16 +66,19 @@ def download_file_with_retry(auth_handler, cam_ip, track, camera_channel=1):
     before=LogPrinter.download_file_before, after=LogPrinter.download_file_after
 )
 def download_file(auth_handler, cam_ip, url_to_download, file_name):
+    from .camerasdk import CameraSdk
     return CameraSdk.download_file(auth_handler, cam_ip, url_to_download, file_name)
 
 
 @logging_wrapper(before=LogPrinter.reboot_camera)
 def reboot_camera(auth_handler, cam_ip):
+    from .camerasdk import CameraSdk
     CameraSdk.reboot_camera(auth_handler, cam_ip)
 
 
 @logging_wrapper(after=LogPrinter.wait_until_camera_rebooted)
 def wait_until_camera_rebooted(cam_ip):
+    from .camerasdk import CameraSdk
     CameraSdk.wait_until_camera_rebooted(
         cam_ip, CAMERA_REBOOT_TIME_SECONDS, DELAY_BEFORE_CHECKING_AVAILABILITY_SECONDS
     )
