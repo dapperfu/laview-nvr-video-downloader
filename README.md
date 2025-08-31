@@ -1,6 +1,8 @@
 # LaView NVR Video Downloader
 
-A Python package for automatically downloading video files from LaView NVRs & cameras via ISAPI interface. This tool is based on Hikvision technology and provides a command-line interface for bulk video retrieval.
+A Python package specifically designed for the **LV-T9708MHS** LaView NVR system, available at Menards. This tool automatically downloads video files from the LV-T9708MHS via ISAPI interface. It is based on Hikvision technology and provides a command-line interface for bulk video retrieval.
+
+**⚠️ Important Note**: This tool has only been tested on the LV-T9708MHS model. While it may work with other LaView NVRs that use the ISAPI interface, compatibility is not guaranteed.
 
 ## Features
 
@@ -158,10 +160,10 @@ python -m laview_dl.cli [options]
 
 ## Supported Devices
 
-This tool has been tested with:
-- [LV-T9708MHS](https://support.laviewsecurity.com/hc/en-us/sections/115004123387-LV-T9708MHS)
+This tool has been **specifically designed and tested** for:
+- **[LV-T9708MHS](https://support.laviewsecurity.com/hc/en-us/sections/115004123387-LV-T9708MHS)** - Available at Menards
 
-It should work with other LaView NVRs and cameras that use the ISAPI interface.
+**⚠️ Compatibility Notice**: This tool has only been tested on the LV-T9708MHS model. While it may work with other LaView NVRs that use the ISAPI interface, compatibility is not guaranteed. If you're using a different model, please test thoroughly and report any issues.
 
 ## Development
 
