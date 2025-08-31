@@ -1,6 +1,8 @@
 from datetime import datetime
 from datetime import timedelta
 
+from .date_parser import FlexibleDateParser
+
 
 class TimeInterval:
     __tz_format = "%Y-%m-%dT%H:%M:%SZ"
@@ -37,10 +39,11 @@ class TimeInterval:
 
     @classmethod
     def __text_to_time(cls, time_text):
+        """Parse datetime text using flexible parser."""
         try:
-            return datetime.strptime(time_text, cls.__common_format)
-        except ValueError:
-            raise ValueError('Datetime string "{}" has wrong format'.format(time_text))
+            return FlexibleDateParser.parse_datetime(time_text)
+        except ValueError as e:
+            raise ValueError(f'Datetime string "{time_text}" has wrong format: {e}')
 
     @classmethod
     def __time_to_tz_format(cls, time):

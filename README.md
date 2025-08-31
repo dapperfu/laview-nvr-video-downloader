@@ -8,6 +8,8 @@ A Python package specifically designed for the **LV-T9708MHS** LaView NVR system
 
 - **Multi-camera support**: Download from specific camera channels
 - **Flexible time ranges**: Specify custom date/time intervals for video retrieval
+- **Natural language date parsing**: Support for "today", "yesterday", "now", "2 days ago", etc.
+- **Multiple date formats**: Support for "August 30, 2025", "08/30/2025", "2025-08-30", etc.
 - **Authentication support**: HTTP Basic and Digest authentication
 - **Automatic timezone handling**: UTC time conversion and camera timezone detection
 - **Bulk download**: Efficiently download multiple video files in a single operation
@@ -40,6 +42,21 @@ pip install -r requirements.txt
 
 ## Configuration
 
+### Quick Setup (Recommended)
+
+Use the interactive setup command to configure your devices:
+
+```bash
+python -m laview_dl.cli --setup
+```
+
+This will prompt you for:
+- Device name (e.g., "office-nvr", "home-camera")
+- IP address
+- Username and password (optional, can use environment variables)
+- Camera channel number
+- Timeout settings
+
 ### Environment Variables
 
 Set your LaView NVR credentials as environment variables:
@@ -55,6 +72,32 @@ Or set them inline when running commands:
 LAVIEW_NVR_USER=admin LAVIEW_NVR_PASS=your_password python -m laview_dl.cli [options]
 ```
 
+### Device Management
+
+List configured devices:
+```bash
+python -m laview_dl.cli --list-devices
+```
+
+Remove a device:
+```bash
+python -m laview_dl.cli --remove-device
+```
+
+### Configuration Storage
+
+Device configurations are stored in:
+- **Linux/macOS**: `~/.config/laview-nvr-video-downloader/devices.json`
+- **Windows**: `%APPDATA%\laview-nvr-video-downloader\devices.json`
+
+The configuration file contains:
+- Device names and IP addresses
+- Camera channel numbers
+- Timeout settings
+- Username/password (if provided during setup)
+
+**Security Note**: Credentials are stored in plain text. Consider using environment variables for sensitive information.
+
 ### Authentication Types
 
 The tool automatically detects and uses the appropriate authentication method:
@@ -64,7 +107,26 @@ The tool automatically detects and uses the appropriate authentication method:
 
 ## Usage
 
-### Basic Command Format
+### Setup Commands
+
+```bash
+# Configure a new device
+python -m laview_dl.cli --setup
+
+# List configured devices
+python -m laview_dl.cli --list-devices
+
+# Remove a device
+python -m laview_dl.cli --remove-device
+```
+
+### Device-Based Commands (Recommended)
+
+```bash
+python -m laview_dl.cli --device DEVICE_NAME START_DATE START_TIME [END_DATE] [END_TIME]
+```
+
+### Legacy Commands (Direct IP)
 
 ```bash
 python -m laview_dl.cli [--camera CAMERA] CAM_IP START_DATE START_TIME [END_DATE] [END_TIME]
@@ -74,27 +136,44 @@ python -m laview_dl.cli [--camera CAMERA] CAM_IP START_DATE START_TIME [END_DATE
 
 | Argument | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `--camera CAMERA` | Camera channel number | No | 1 |
-| `CAM_IP` | Camera/NVR IP address | Yes | - |
+| `--setup` | Configure a new device | No | - |
+| `--list-devices` | List all configured devices | No | - |
+| `--remove-device` | Remove a configured device | No | - |
+| `--device DEVICE_NAME` | Use a configured device by name | No | - |
+| `--camera CAMERA` | Camera channel number (legacy mode) | No | 1 |
+| `CAM_IP` | Camera/NVR IP address (legacy mode) | Yes* | - |
 | `START_DATE` | Start date (YYYY-MM-DD) | Yes | - |
 | `START_TIME` | Start time (HH:MM:SS) | Yes | - |
 | `END_DATE` | End date (YYYY-MM-DD) | No | Today |
 | `END_TIME` | End time (HH:MM:SS) | No | Current time |
 
+*Required when not using `--device`
+
 ### Examples
 
-#### Download from default camera (channel 1)
+#### Using configured devices (recommended)
 ```bash
+# Download from a configured device with flexible date formats
+python -m laview_dl.cli --device office-nvr "August 30, 2025" "08:00 AM" "August 31, 2025" "08:00 AM"
+python -m laview_dl.cli --device home-camera today "06:00 AM" tomorrow "06:00 AM"
+python -m laview_dl.cli --device shop-nvr yesterday "08:00 AM" now
+
+# Download from a configured device (legacy format)
+python -m laview_dl.cli --device office-nvr 2024-04-12 00:00:00 2024-04-12 04:00:00
+
+# Download from a configured device (until current time)
+python -m laview_dl.cli --device home-camera 2024-04-12 00:00:00
+```
+
+#### Legacy mode - direct IP address
+```bash
+# Download from default camera (channel 1)
 python -m laview_dl.cli 192.168.1.100 2024-04-12 00:00:00 2024-04-12 04:00:00
-```
 
-#### Download from specific camera channel
-```bash
+# Download from specific camera channel
 python -m laview_dl.cli --camera 2 192.168.1.100 2024-04-12 00:00:00 2024-04-12 04:00:00
-```
 
-#### Download with custom credentials
-```bash
+# Download with custom credentials
 LAVIEW_NVR_USER=admin LAVIEW_NVR_PASS=qwert123 python -m laview_dl.cli --camera 3 192.168.1.100 2024-04-12 00:00:00
 ```
 
@@ -106,6 +185,53 @@ python -m laview_dl.cli --camera 1 192.168.1.100 2024-04-12 00:00:00
 #### Download for entire day
 ```bash
 python -m laview_dl.cli --camera 1 192.168.1.100 2024-04-12 00:00:00 2024-04-12 23:59:59
+```
+
+## Flexible Date/Time Parsing
+
+The tool supports a wide variety of date and time formats to make it user-friendly for non-technical users:
+
+### Natural Language
+```bash
+# Relative dates
+today, yesterday, tomorrow
+now
+2 days ago, 3 weeks ago
+next week, last month, this year
+```
+
+### Formatted Dates
+```bash
+# Full month names
+"August 30, 2025", "Aug 30, 2025"
+"30 August 2025", "30 Aug 2025"
+
+# Numeric formats
+"2025-08-30", "08/30/2025", "30/08/2025"
+```
+
+### Time Formats
+```bash
+# 24-hour format
+"08:00:00", "08:00"
+
+# 12-hour format with AM/PM
+"08:00 AM", "08:00:00 AM"
+"2:30 PM", "14:30"
+```
+
+### Examples
+```bash
+# Natural language
+python -m laview_dl.cli --device camera today "06:00 AM" now
+python -m laview_dl.cli --device camera yesterday "08:00 AM" today "08:00 AM"
+
+# Formatted dates
+python -m laview_dl.cli --device camera "August 30, 2025" "08:00 AM" "August 31, 2025" "08:00 AM"
+python -m laview_dl.cli --device camera "08/30/2025" "08:00" "08/31/2025" "08:00"
+
+# Mixed formats
+python -m laview_dl.cli --device camera "August 30, 2025" "08:00 AM" tomorrow "06:00 PM"
 ```
 
 ## Important Notes
@@ -174,6 +300,8 @@ laview-nvr-video-downloader/
 ├── laview_dl/           # Main package
 │   ├── __init__.py
 │   ├── cli.py          # Command-line interface
+│   ├── config.py       # Configuration management
+│   ├── date_parser.py  # Flexible date/time parsing
 │   ├── camerasdk.py    # Camera SDK implementation
 │   ├── work.py         # Main work logic
 │   ├── authtype.py     # Authentication types
