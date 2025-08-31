@@ -5,17 +5,17 @@ import requests
 
 from .authtype import AuthType
 from .camerasdk import CameraSdk
-from .logging import Logger, get_all_tracks
+from .logging import Logger
+from .camerasdk import get_all_tracks
 from .time_interval import TimeInterval
 from .utils import download_videos
 
 
-def work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time):
+def work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time, camera_channel=1):
     logger = Logger.get_logger()
     try:
-        camera = os.getenv("CAMERA", "1")
         logger.info(f"Processing IP {camera_ip}.")
-        logger.info(f"Processing Camera {camera}.")
+        logger.info(f"Processing Camera {camera_channel}.")
         logger.info(
             "{} time is used".format("UTC" if use_utc_time else "Camera's local")
         )
@@ -38,7 +38,7 @@ def work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time):
             start_datetime_str, end_datetime_str, local_time_offset
         ).to_utc()
 
-        download_videos(auth_handler, camera_ip)
+        download_videos(auth_handler, camera_ip, camera_channel)
 
     except requests.exceptions.ConnectionError as e:
         logger.error("Connection error: {}".format(e))

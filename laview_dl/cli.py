@@ -10,7 +10,7 @@ from .work import work
 
 def parse_parameters() -> Optional[Namespace]:
     usage = """
-  %(prog)s [-u] CAM_IP START_DATE START_TIME END_DATE END_TIME
+  %(prog)s [-u] [--camera CAMERA] CAM_IP START_DATE START_TIME END_DATE END_TIME
   
   If END_DATE and END_TIME aren't specified use now().
 
@@ -20,8 +20,9 @@ def parse_parameters() -> Optional[Namespace]:
     epilog = """
 Examples:
   python %(prog)s 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
-  CAMERA=2 python %(prog)s 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
-  LAVIEW_USER=admin LAVIEW_PASS=qwert123 python %(prog)s 10.145.17.202 2020-04-15 00:30:0
+  python %(prog)s --camera 2 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
+  python %(prog)s --camera 3 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
+  LAVIEW_USER=admin LAVIEW_PASS=qwert123 python %(prog)s --camera 1 10.145.17.202 2020-04-15 00:30:00
   
         """
 
@@ -43,6 +44,12 @@ Examples:
         help="end time of interval",
         default=datetime.now().strftime("%H:%M:%S"),
     )
+    parser.add_argument(
+        "--camera",
+        type=int,
+        default=1,
+        help="camera channel number (default: 1)",
+    )
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -58,12 +65,13 @@ def main():
         try:
             setattr(parameters, "utc", True)
             camera_ip = parameters.IP
-            init(camera_ip)
+            camera_channel = parameters.camera
+            init(camera_ip, camera_channel)
 
             start_datetime_str = parameters.START_DATE + " " + parameters.START_TIME
             end_datetime_str = str(parameters.END_DATE + " " + parameters.END_TIME)
 
-            work(camera_ip, start_datetime_str, end_datetime_str, parameters.utc)
+            work(camera_ip, start_datetime_str, end_datetime_str, parameters.utc, camera_channel)
 
         except KeyboardInterrupt:
             print("^-C: Exited")

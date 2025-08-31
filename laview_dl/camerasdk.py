@@ -176,7 +176,7 @@ class CameraSdk:
         return False
 
     @classmethod
-    def get_video_tracks_info(cls, auth_handler, cam_ip, utc_time_interval, max_videos):
+    def get_video_tracks_info(cls, auth_handler, cam_ip, utc_time_interval, max_videos, camera_channel=1):
         # Create the root element
         cm_search_description = Element("CMSearchDescription")
 
@@ -185,10 +185,9 @@ class CameraSdk:
         search_id.text = str(uuid.uuid4())  # Generate a unique search ID
 
         # Add trackIDList
-        camera = os.getenv("CAMERA", "1")
         track_id_list = SubElement(cm_search_description, "trackIDList")
         track_id = SubElement(track_id_list, "trackID")
-        track_id.text = f"{camera}01"
+        track_id.text = f"{camera_channel}01"
 
         # Add timeSpanList
         time_span_list = SubElement(cm_search_description, "timeSpanList")
@@ -281,10 +280,10 @@ class CameraSdk:
 log_file_name_pattern = "{}.log"
 
 
-def init(cam_ip):
+def init(cam_ip, camera_channel=1):
     path_to_log_file = log_file_name_pattern.format(cam_ip)
 
-    create_directory_for(get_path_to_video_archive(cam_ip))
+    create_directory_for(get_path_to_video_archive(cam_ip, camera_channel))
 
     Logger.init_logger(
         write_logs, path_to_log_file, MAX_BYTES_LOG_FILE_SIZE, MAX_LOG_FILES_COUNT
@@ -293,10 +292,10 @@ def init(cam_ip):
     CameraSdk.init(DEFAULT_TIMEOUT_SECONDS)
 
 @logging_wrapper(before=LogPrinter.get_all_tracks)
-def get_all_tracks(auth_handler, cam_ip, utc_time_interval):
+def get_all_tracks(auth_handler, cam_ip, utc_time_interval, camera_channel=1):
     tracks = []
     while True:
-        answer = get_video_tracks_info(auth_handler, cam_ip, utc_time_interval)
+        answer = get_video_tracks_info(auth_handler, cam_ip, utc_time_interval, camera_channel)
         local_time_offset = utc_time_interval.local_time_offset
         if answer:
             new_tracks = CameraSdk.create_tracks_from_info(answer, local_time_offset)
@@ -314,7 +313,7 @@ def get_all_tracks(auth_handler, cam_ip, utc_time_interval):
 
 
 @logging_wrapper(after=LogPrinter.get_video_tracks_info)
-def get_video_tracks_info(auth_handler, cam_ip, utc_time_interval):
+def get_video_tracks_info(auth_handler, cam_ip, utc_time_interval, camera_channel=1):
     return CameraSdk.get_video_tracks_info(
-        auth_handler, cam_ip, utc_time_interval, MAX_VIDEOS_NUMBER_IN_ONE_REQUEST
+        auth_handler, cam_ip, utc_time_interval, MAX_VIDEOS_NUMBER_IN_ONE_REQUEST, camera_channel
     )

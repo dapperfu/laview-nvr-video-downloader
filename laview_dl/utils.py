@@ -17,14 +17,13 @@ MAX_VIDEOS_NUMBER_IN_ONE_REQUEST = 100
 video_file_extension = ".mp4"
 
 
-def get_path_to_video_archive(cam_ip: str):
-    camera = os.getenv("CAMERA", "1")
-    return os.path.join(path_to_video_archive, cam_ip, f"camera{camera}")
+def get_path_to_video_archive(cam_ip: str, camera_channel: int = 1):
+    return os.path.join(path_to_video_archive, cam_ip, f"camera{camera_channel}")
 
 
-def download_videos(auth_handler, cam_ip):
-    tracks = get_all_tracks(auth_handler, cam_ip)
-    download_tracks(tracks, auth_handler, cam_ip)
+def download_videos(auth_handler, cam_ip, camera_channel=1):
+    tracks = get_all_tracks(auth_handler, cam_ip, camera_channel)
+    download_tracks(tracks, auth_handler, cam_ip, camera_channel)
 
 
 def create_directory_for(file_path):
@@ -34,20 +33,20 @@ def create_directory_for(file_path):
 
 
 @logging_wrapper(before=LogPrinter.download_tracks)
-def download_tracks(tracks, auth_handler, cam_ip):
+def download_tracks(tracks, auth_handler, cam_ip, camera_channel=1):
     for track in tracks:
         # TODO retry only N times
         while True:
-            if download_file_with_retry(auth_handler, cam_ip, track):
+            if download_file_with_retry(auth_handler, cam_ip, track, camera_channel):
                 break
 
         time.sleep(DELAY_BETWEEN_DOWNLOADING_FILES_SECONDS)
 
 
-def download_file_with_retry(auth_handler, cam_ip, track):
+def download_file_with_retry(auth_handler, cam_ip, track, camera_channel=1):
     start_time_text = track.get_time_interval().to_local_time().to_filename_text()
     file_name = os.path.join(
-        get_path_to_video_archive(cam_ip), start_time_text + video_file_extension
+        get_path_to_video_archive(cam_ip, camera_channel), start_time_text + video_file_extension
     )
     url_to_download = track.url_to_download()
 
