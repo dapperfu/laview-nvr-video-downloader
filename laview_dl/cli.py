@@ -315,9 +315,9 @@ def main():
         camera_ip = parameters.IP
         camera_channel = parameters.camera
         
-        # Initialize logger
+        # Initialize logger with verbose level
         from .camerasdk import init
-        init(camera_ip, camera_channel)
+        init(camera_ip, camera_channel, verbose_level=parameters.verbose)
 
         # Parse the datetime strings using flexible parser
         start_datetime_str, end_datetime_str = parse_datetime_strings(

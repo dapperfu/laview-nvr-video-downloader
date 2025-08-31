@@ -1,0 +1,339 @@
+2025-08-31 16:55:25 - INFO - Processing IP 192.168.1.100.
+2025-08-31 16:55:25 - INFO - Processing Camera 1.
+2025-08-31 16:55:25 - INFO - UTC time is used
+2025-08-31 16:55:25 - ERROR - Datetime string "08:00 AM August 31, 2025" has wrong format
+Traceback (most recent call last):
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/time_interval.py", line 41, in __text_to_time
+    return datetime.strptime(time_text, cls.__common_format)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/_strptime.py", line 554, in _strptime_datetime
+    tt, fraction, gmtoff_fraction = _strptime(data_string, format)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/_strptime.py", line 333, in _strptime
+    raise ValueError("time data %r does not match format %r" %
+ValueError: time data '08:00 AM August 31, 2025' does not match format '%Y-%m-%d %H:%M:%S'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/work.py", line 37, in work
+    utc_time_interval = TimeInterval.from_string(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/time_interval.py", line 17, in from_string
+    start = cls.__text_to_time(start_str)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/time_interval.py", line 43, in __text_to_time
+    raise ValueError('Datetime string "{}" has wrong format'.format(time_text))
+ValueError: Datetime string "08:00 AM August 31, 2025" has wrong format
+2025-08-31 17:27:01 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:27:01 - INFO - Processing Camera 1.
+2025-08-31 17:27:01 - INFO - UTC time is used
+2025-08-31 17:27:01 - ERROR - LogPrinter.get_all_tracks() takes 3 positional arguments but 4 were given
+Traceback (most recent call last):
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/work.py", line 41, in work
+    tracks = get_all_tracks(auth_handler, camera_ip, utc_time_interval, camera_channel)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/logging.py", line 50, in wrapper_func
+    before(*args, **kwargs)
+TypeError: LogPrinter.get_all_tracks() takes 3 positional arguments but 4 were given
+2025-08-31 17:27:11 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:27:11 - INFO - Processing Camera 1.
+2025-08-31 17:27:11 - INFO - UTC time is used
+2025-08-31 17:27:11 - INFO - Start time: 2025-08-31 17:27:11
+2025-08-31 17:27:11 - INFO - End time: 2025-08-31 17:27:11
+2025-08-31 17:27:11 - INFO - Getting tracks list...
+2025-08-31 17:27:11 - ERROR - name 'MAX_VIDEOS_NUMBER_IN_ONE_REQUEST' is not defined
+Traceback (most recent call last):
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/work.py", line 41, in work
+    tracks = get_all_tracks(auth_handler, camera_ip, utc_time_interval, camera_channel)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/logging.py", line 52, in wrapper_func
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/camerasdk.py", line 311, in get_all_tracks
+    answer = get_video_tracks_info(auth_handler, cam_ip, utc_time_interval, camera_channel)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/logging.py", line 52, in wrapper_func
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/camerasdk.py", line 331, in get_video_tracks_info
+    auth_handler, cam_ip, utc_time_interval, MAX_VIDEOS_NUMBER_IN_ONE_REQUEST, camera_channel
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'MAX_VIDEOS_NUMBER_IN_ONE_REQUEST' is not defined
+2025-08-31 17:27:22 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:27:22 - INFO - Processing Camera 1.
+2025-08-31 17:27:22 - INFO - UTC time is used
+2025-08-31 17:27:22 - INFO - Start time: 2025-08-31 17:27:22
+2025-08-31 17:27:22 - INFO - End time: 2025-08-31 17:27:22
+2025-08-31 17:27:22 - INFO - Getting tracks list...
+2025-08-31 17:27:22 - ERROR - 'NoneType' object has no attribute 'findall'
+Traceback (most recent call last):
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/work.py", line 41, in work
+    tracks = get_all_tracks(auth_handler, camera_ip, utc_time_interval, camera_channel)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/logging.py", line 52, in wrapper_func
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/camerasdk.py", line 315, in get_all_tracks
+    new_tracks = CameraSdk.create_tracks_from_info(answer, local_time_offset)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/camerasdk.py", line 240, in create_tracks_from_info
+    match_items = match_list.findall("searchMatchItem")
+                  ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'findall'
+2025-08-31 17:27:55 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:27:55 - INFO - Processing Camera 1.
+2025-08-31 17:27:55 - INFO - UTC time is used
+2025-08-31 17:27:55 - INFO - Start time: 2025-08-31 17:27:55
+2025-08-31 17:27:55 - INFO - End time: 2025-08-31 17:27:55
+2025-08-31 17:27:55 - INFO - Getting tracks list...
+2025-08-31 17:27:55 - ERROR - LogPrinter.download_tracks() takes 3 positional arguments but 4 were given
+Traceback (most recent call last):
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/work.py", line 42, in work
+    download_videos(tracks, auth_handler, camera_ip, camera_channel)
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/utils.py", line 25, in download_videos
+    download_tracks(tracks, auth_handler, cam_ip, camera_channel)
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/logging.py", line 50, in wrapper_func
+    before(*args, **kwargs)
+TypeError: LogPrinter.download_tracks() takes 3 positional arguments but 4 were given
+2025-08-31 17:28:05 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:28:05 - INFO - Processing Camera 1.
+2025-08-31 17:28:05 - INFO - UTC time is used
+2025-08-31 17:28:05 - INFO - Start time: 2025-08-31 17:28:05
+2025-08-31 17:28:05 - INFO - End time: 2025-08-31 17:28:05
+2025-08-31 17:28:05 - INFO - Getting tracks list...
+2025-08-31 17:28:05 - INFO - Found 0 files
+2025-08-31 17:28:48 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:28:48 - INFO - Processing Camera 1.
+2025-08-31 17:28:48 - INFO - UTC time is used
+2025-08-31 17:28:49 - INFO - Start time: 2025-08-31 17:28:48
+2025-08-31 17:28:49 - INFO - End time: 2025-08-31 17:28:48
+2025-08-31 17:28:49 - INFO - Getting tracks list...
+2025-08-31 17:28:49 - INFO - Found 0 files
+2025-08-31 17:28:53 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:28:53 - INFO - Processing Camera 1.
+2025-08-31 17:28:53 - INFO - UTC time is used
+2025-08-31 17:28:53 - INFO - Start time: 2025-08-31 08:00:00
+2025-08-31 17:28:53 - INFO - End time: 2025-08-31 17:28:53
+2025-08-31 17:28:53 - INFO - Getting tracks list...
+2025-08-31 17:28:53 - INFO - Found 0 files
+2025-08-31 17:30:23 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:30:23 - INFO - Processing Camera 1.
+2025-08-31 17:30:23 - INFO - UTC time is used
+2025-08-31 17:30:23 - INFO - Start time: 2025-08-31 17:30:23
+2025-08-31 17:30:23 - INFO - End time: 2025-08-31 17:30:23
+2025-08-31 17:30:23 - INFO - Getting tracks list...
+2025-08-31 17:30:23 - INFO - Found 0 files
+2025-08-31 17:30:27 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:30:27 - INFO - Processing Camera 1.
+2025-08-31 17:30:27 - INFO - UTC time is used
+2025-08-31 17:30:27 - INFO - Start time: 2025-08-31 08:00:00
+2025-08-31 17:30:27 - INFO - End time: 2025-08-31 17:30:27
+2025-08-31 17:30:27 - INFO - Getting tracks list...
+2025-08-31 17:30:27 - INFO - Found 0 files
+2025-08-31 17:30:30 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:30:30 - INFO - Processing Camera 2.
+2025-08-31 17:30:30 - INFO - UTC time is used
+2025-08-31 17:30:30 - ERROR - Unauthorised! Check login and password
+Traceback (most recent call last):
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/work.py", line 28, in work
+    raise RuntimeError("Unauthorised! Check login and password")
+RuntimeError: Unauthorised! Check login and password
+2025-08-31 17:30:33 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:30:33 - INFO - Processing Camera 1.
+2025-08-31 17:30:33 - INFO - UTC time is used
+2025-08-31 17:30:33 - INFO - Start time: 2025-08-31 17:30:33
+2025-08-31 17:30:33 - INFO - End time: 2025-08-31 17:30:33
+2025-08-31 17:30:33 - INFO - Getting tracks list...
+2025-08-31 17:30:33 - INFO - Found 0 files
+2025-08-31 17:38:04 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:38:04 - INFO - Processing Camera 2.
+2025-08-31 17:38:04 - INFO - UTC time is used
+2025-08-31 17:38:04 - INFO - Start time: 2025-08-31 17:38:04
+2025-08-31 17:38:04 - INFO - End time: 2025-08-31 17:38:04
+2025-08-31 17:38:04 - INFO - Getting tracks list...
+2025-08-31 17:38:04 - INFO - Found 0 files
+2025-08-31 17:38:07 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:38:07 - INFO - Processing Camera 2.
+2025-08-31 17:38:07 - INFO - UTC time is used
+2025-08-31 17:38:07 - INFO - Start time: 2025-08-31 17:38:07
+2025-08-31 17:38:07 - INFO - End time: 2025-08-31 17:38:07
+2025-08-31 17:38:07 - INFO - Getting tracks list...
+2025-08-31 17:38:07 - INFO - Found 0 files
+2025-08-31 17:39:31 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:39:31 - INFO - Processing Camera 2.
+2025-08-31 17:39:31 - INFO - UTC time is used
+2025-08-31 17:39:31 - INFO - Start time: 2025-08-31 17:39:31
+2025-08-31 17:39:31 - INFO - End time: 2025-08-31 17:39:31
+2025-08-31 17:39:31 - INFO - Getting tracks list...
+2025-08-31 17:39:31 - INFO - Found 0 files
+2025-08-31 17:39:33 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:39:33 - INFO - Processing Camera 2.
+2025-08-31 17:39:33 - INFO - UTC time is used
+2025-08-31 17:39:33 - INFO - Start time: 2025-08-31 23:59:59
+2025-08-31 17:39:33 - INFO - End time: 2025-08-31 17:39:33
+2025-08-31 17:39:33 - INFO - Getting tracks list...
+2025-08-31 17:39:33 - ERROR - name 'CameraSdk' is not defined
+Traceback (most recent call last):
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/work.py", line 41, in work
+    tracks = get_all_tracks(auth_handler, camera_ip, utc_time_interval, camera_channel)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/logging.py", line 143, in wrapper_func
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/camerasdk.py", line 316, in get_all_tracks
+    answer = get_video_tracks_info(auth_handler, cam_ip, utc_time_interval, camera_channel)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/logging.py", line 146, in wrapper_func
+    after(result)
+  File "/projects/nvr/laview-nvr-video-downloader/laview_dl/logging.py", line 172, in get_video_tracks_info
+    error_message = CameraSdk.get_error_message_from(result)
+                    ^^^^^^^^^
+NameError: name 'CameraSdk' is not defined
+2025-08-31 17:40:06 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:06 - INFO - Processing Camera 2.
+2025-08-31 17:40:06 - INFO - UTC time is used
+2025-08-31 17:40:06 - INFO - Start time: 2025-08-31 23:59:59
+2025-08-31 17:40:06 - INFO - End time: 2025-08-31 17:40:06
+2025-08-31 17:40:06 - INFO - Getting tracks list...
+2025-08-31 17:40:06 - ERROR - Error occurred during getting tracks list
+2025-08-31 17:40:06 - ERROR - Request failed
+2025-08-31 17:40:06 - INFO - Found 0 files
+2025-08-31 17:40:08 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:08 - INFO - Processing Camera 2.
+2025-08-31 17:40:08 - INFO - UTC time is used
+2025-08-31 17:40:08 - INFO - Start time: 2025-08-31 17:40:08
+2025-08-31 17:40:08 - INFO - End time: 2025-08-31 17:40:08
+2025-08-31 17:40:08 - INFO - Getting tracks list...
+2025-08-31 17:40:08 - INFO - Found 0 files
+2025-08-31 17:40:11 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:11 - INFO - Processing Camera 1.
+2025-08-31 17:40:11 - INFO - UTC time is used
+2025-08-31 17:40:11 - INFO - Start time: 2025-08-31 23:59:59
+2025-08-31 17:40:11 - INFO - End time: 2025-08-31 17:40:11
+2025-08-31 17:40:11 - INFO - Getting tracks list...
+2025-08-31 17:40:11 - ERROR - Error occurred during getting tracks list
+2025-08-31 17:40:11 - ERROR - Request failed
+2025-08-31 17:40:11 - INFO - Found 0 files
+2025-08-31 17:40:13 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:13 - INFO - Processing Camera 1.
+2025-08-31 17:40:13 - INFO - UTC time is used
+2025-08-31 17:40:13 - INFO - Start time: 2025-08-31 17:40:13
+2025-08-31 17:40:13 - INFO - End time: 2025-08-31 17:40:13
+2025-08-31 17:40:13 - INFO - Getting tracks list...
+2025-08-31 17:40:13 - INFO - Found 0 files
+2025-08-31 17:40:14 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:14 - INFO - Processing Camera 1.
+2025-08-31 17:40:14 - INFO - UTC time is used
+2025-08-31 17:40:14 - INFO - Start time: 2025-08-31 17:40:14
+2025-08-31 17:40:14 - INFO - End time: 2025-08-31 17:40:14
+2025-08-31 17:40:14 - INFO - Getting tracks list...
+2025-08-31 17:40:14 - INFO - Found 0 files
+2025-08-31 17:40:16 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:16 - INFO - Processing Camera 2.
+2025-08-31 17:40:16 - INFO - UTC time is used
+2025-08-31 17:40:17 - INFO - Start time: 2025-08-31 17:40:16
+2025-08-31 17:40:17 - INFO - End time: 2025-08-31 17:40:16
+2025-08-31 17:40:17 - INFO - Getting tracks list...
+2025-08-31 17:40:17 - INFO - Found 0 files
+2025-08-31 17:40:18 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:18 - INFO - Processing Camera 2.
+2025-08-31 17:40:18 - INFO - UTC time is used
+2025-08-31 17:40:18 - INFO - Start time: 2025-08-31 17:40:18
+2025-08-31 17:40:18 - INFO - End time: 2025-08-31 17:40:18
+2025-08-31 17:40:18 - INFO - Getting tracks list...
+2025-08-31 17:40:18 - INFO - Found 0 files
+2025-08-31 17:40:20 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:20 - INFO - Processing Camera 2.
+2025-08-31 17:40:20 - INFO - UTC time is used
+2025-08-31 17:40:20 - INFO - Start time: 2025-08-31 17:40:20
+2025-08-31 17:40:20 - INFO - End time: 2025-08-31 17:40:20
+2025-08-31 17:40:20 - INFO - Getting tracks list...
+2025-08-31 17:40:20 - INFO - Found 0 files
+2025-08-31 17:40:20 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:20 - INFO - Processing Camera 2.
+2025-08-31 17:40:20 - INFO - UTC time is used
+2025-08-31 17:40:21 - INFO - Start time: 2025-08-31 23:59:59
+2025-08-31 17:40:21 - INFO - End time: 2025-08-31 17:40:20
+2025-08-31 17:40:21 - INFO - Getting tracks list...
+2025-08-31 17:40:21 - ERROR - Error occurred during getting tracks list
+2025-08-31 17:40:21 - ERROR - Request failed
+2025-08-31 17:40:21 - INFO - Found 0 files
+2025-08-31 17:40:23 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:23 - INFO - Processing Camera 2.
+2025-08-31 17:40:23 - INFO - UTC time is used
+2025-08-31 17:40:23 - INFO - Start time: 2025-08-31 23:59:59
+2025-08-31 17:40:23 - INFO - End time: 2025-08-31 17:40:23
+2025-08-31 17:40:23 - INFO - Getting tracks list...
+2025-08-31 17:40:23 - ERROR - Error occurred during getting tracks list
+2025-08-31 17:40:23 - ERROR - Request failed
+2025-08-31 17:40:23 - INFO - Found 0 files
+2025-08-31 17:40:30 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:30 - INFO - Processing Camera 2.
+2025-08-31 17:40:30 - INFO - UTC time is used
+2025-08-31 17:40:30 - INFO - Start time: 2025-08-31 17:40:30
+2025-08-31 17:40:30 - INFO - End time: 2025-08-31 17:40:30
+2025-08-31 17:40:30 - INFO - Getting tracks list...
+2025-08-31 17:40:30 - INFO - Found 0 files
+2025-08-31 17:40:35 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:35 - INFO - Processing Camera 2.
+2025-08-31 17:40:35 - INFO - UTC time is used
+2025-08-31 17:40:35 - INFO - Start time: 2025-08-31 17:40:35
+2025-08-31 17:40:35 - INFO - End time: 2025-08-31 17:40:35
+2025-08-31 17:40:35 - INFO - Getting tracks list...
+2025-08-31 17:40:35 - INFO - Found 0 files
+2025-08-31 17:40:46 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:46 - INFO - Processing Camera 2.
+2025-08-31 17:40:46 - INFO - UTC time is used
+2025-08-31 17:40:46 - GOSSIP - 🔍 Starting video download process for 192.168.1.100
+2025-08-31 17:40:46 - INFO - Start time: 2025-08-31 17:40:46
+2025-08-31 17:40:46 - INFO - End time: 2025-08-31 17:40:46
+2025-08-31 17:40:46 - INFO - Getting tracks list...
+2025-08-31 17:40:46 - INFO - Found 0 files
+2025-08-31 17:40:50 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:50 - INFO - Processing Camera 2.
+2025-08-31 17:40:50 - INFO - UTC time is used
+2025-08-31 17:40:50 - GOSSIP - 🔍 Starting video download process for 192.168.1.100
+2025-08-31 17:40:50 - CHATTER - 📡 Connecting to camera 2 on 192.168.1.100
+2025-08-31 17:40:50 - BANTER - 🤝 Establishing communication with NVR at 192.168.1.100
+2025-08-31 17:40:50 - BANTER - 📅 Converted time interval to UTC: <laview_dl.time_interval.TimeInterval object at 0x781501ef4b00>
+2025-08-31 17:40:50 - INFO - Start time: 2025-08-31 17:40:50
+2025-08-31 17:40:50 - INFO - End time: 2025-08-31 17:40:50
+2025-08-31 17:40:50 - INFO - Getting tracks list...
+2025-08-31 17:40:51 - INFO - Found 0 files
+2025-08-31 17:40:54 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:54 - INFO - Processing Camera 2.
+2025-08-31 17:40:54 - INFO - UTC time is used
+2025-08-31 17:40:54 - GOSSIP - 🔍 Starting video download process for 192.168.1.100
+2025-08-31 17:40:54 - CHATTER - 📡 Connecting to camera 2 on 192.168.1.100
+2025-08-31 17:40:54 - BANTER - 🤝 Establishing communication with NVR at 192.168.1.100
+2025-08-31 17:40:54 - TALK - 📊 Time range: 2025-08-31 17:40:54 to 2025-08-31 17:40:54
+2025-08-31 17:40:54 - WHISPER - ⚙️ Using UTC time mode
+2025-08-31 17:40:54 - BANTER - 📅 Converted time interval to UTC: <laview_dl.time_interval.TimeInterval object at 0x70abf7db1e80>
+2025-08-31 17:40:54 - INFO - Start time: 2025-08-31 17:40:54
+2025-08-31 17:40:54 - INFO - End time: 2025-08-31 17:40:54
+2025-08-31 17:40:54 - INFO - Getting tracks list...
+2025-08-31 17:40:54 - INFO - Found 0 files
+2025-08-31 17:40:58 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:40:58 - INFO - Processing Camera 2.
+2025-08-31 17:40:58 - INFO - UTC time is used
+2025-08-31 17:40:58 - GOSSIP - 🔍 Starting video download process for 192.168.1.100
+2025-08-31 17:40:58 - CHATTER - 📡 Connecting to camera 2 on 192.168.1.100
+2025-08-31 17:40:58 - BANTER - 🤝 Establishing communication with NVR at 192.168.1.100
+2025-08-31 17:40:58 - TALK - 📊 Time range: 2025-08-31 17:40:58 to 2025-08-31 17:40:58
+2025-08-31 17:40:58 - WHISPER - ⚙️ Using UTC time mode
+2025-08-31 17:40:58 - MURMUR - 🔐 Checking authentication for user: admin
+2025-08-31 17:40:58 - HINT - ✅ Authentication type: (1,)
+2025-08-31 17:40:58 - TRACE - ⏰ Local time offset: 0:00:00
+2025-08-31 17:40:58 - BANTER - 📅 Converted time interval to UTC: <laview_dl.time_interval.TimeInterval object at 0x7ccbf8c51eb0>
+2025-08-31 17:40:58 - INFO - Start time: 2025-08-31 17:40:58
+2025-08-31 17:40:58 - INFO - End time: 2025-08-31 17:40:58
+2025-08-31 17:40:58 - INFO - Getting tracks list...
+2025-08-31 17:40:58 - INFO - Found 0 files
+2025-08-31 17:41:00 - INFO - Processing IP 192.168.1.100.
+2025-08-31 17:41:00 - INFO - Processing Camera 2.
+2025-08-31 17:41:00 - INFO - UTC time is used
+2025-08-31 17:41:00 - INFO - Start time: 2025-08-31 17:41:00
+2025-08-31 17:41:00 - INFO - End time: 2025-08-31 17:41:00
+2025-08-31 17:41:00 - INFO - Getting tracks list...
+2025-08-31 17:41:00 - INFO - Found 0 files
