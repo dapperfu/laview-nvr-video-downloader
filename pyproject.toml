@@ -1,0 +1,334 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "laview_dl"
+version = "0.1.0"
+description = "A Python package for downloading video files from LaView NVRs & cameras via ISAPI interface"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Multimedia :: Video",
+    "Topic :: System :: Networking",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "requests>=2.25.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pre-commit>=3.0.0",
+    "safety>=2.0.0",
+]
+
+[project.scripts]
+laview-cli = "laview_dl.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["laview_dl*"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+# Ruff configuration
+[tool.ruff]
+target-version = "py38"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "ARG001", # unused-function-args
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "TID", # flake8-tidy-imports
+    "Q",  # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "PIE", # flake8-pie
+    "N",  # pep8-naming
+    "PLR", # pylint refactor
+    "PLW", # pylint warnings
+    "PL",  # pylint
+    "TRY", # tryceratops
+    "NPY", # numpy
+    "AIR", # flake8-airflow
+    "COM", # flake8-commas
+    "C90", # mccabe
+    "DTZ", # flake8-datetimez
+    "T20", # flake8-print
+    "FA",  # flake8-fixme
+    "ISC", # flake8-implicit-str-concat
+    "G",   # flake8-logging-format
+    "INP", # flake8-no-pep420
+    "PTH", # flake8-use-pathlib
+    "YTT", # flake8-2020
+    "BLE", # flake8-blind-except
+    "FBT", # flake8-boolean-trap
+    "A",   # flake8-builtins
+    "COM812", # missing-trailing-comma
+    "COM818", # trailing-comma-on-bare-tuple
+    "COM819", # trailing-comma-missing-parens
+    "RUF001", # unused-noqa
+    "RUF002", # docstring-in-exception
+    "RUF003", # commented-out-code
+    "RUF005", # collection-literal-concatenation
+    "RUF006", # asyncio-dont-use-import-time
+    "RUF007", # explicit-string-concatenation
+    "RUF008", # f-string-missing-placeholders
+    "RUF009", # function-uses-loop-variable
+    "RUF010", # explicit-f-string-type-conversion
+    "RUF011", # explicit-encode-decode
+    "RUF012", # mutable-class-default
+    "RUF013", # unused-imports
+    "RUF015", # unnecessary-iterable-allocation-for-first-element
+    "RUF016", # dangerous-mutable-default-argument
+    "RUF017", # quadratic-list-summation
+    "RUF018", # unused-imports
+    "RUF019", # unused-imports
+    "RUF020", # no-return-argument-annotation-in-stub
+    "RUF021", # parenthesize-chained-operators
+    "RUF022", # unsorted-dunder-all
+    "RUF023", # function-uses-loop-variable
+    "RUF024", # no-unnecessary-dict-comprehension-for-literal
+    "RUF025", # no-unnecessary-dict-comprehension
+    "RUF026", # no-unnecessary-list-comprehension
+    "RUF027", # no-unnecessary-set-comprehension
+    "RUF028", # no-unnecessary-dict-kwargs
+    "RUF029", # no-unnecessary-dict-comprehension
+    "RUF030", # no-unnecessary-dict-comprehension
+    "RUF031", # no-unnecessary-dict-comprehension
+    "RUF032", # no-unnecessary-dict-comprehension
+    "RUF033", # no-unnecessary-dict-comprehension
+    "RUF034", # no-unnecessary-dict-comprehension
+    "RUF035", # no-unnecessary-dict-comprehension
+    "RUF036", # no-unnecessary-dict-comprehension
+    "RUF037", # no-unnecessary-dict-comprehension
+    "RUF038", # no-unnecessary-dict-comprehension
+    "RUF039", # no-unnecessary-dict-comprehension
+    "RUF040", # no-unnecessary-dict-comprehension
+    "RUF041", # no-unnecessary-dict-comprehension
+    "RUF042", # no-unnecessary-dict-comprehension
+    "RUF043", # no-unnecessary-dict-comprehension
+    "RUF044", # no-unnecessary-dict-comprehension
+    "RUF045", # no-unnecessary-dict-comprehension
+    "RUF046", # no-unnecessary-dict-comprehension
+    "RUF047", # no-unnecessary-dict-comprehension
+    "RUF048", # no-unnecessary-dict-comprehension
+    "RUF049", # no-unnecessary-dict-comprehension
+    "RUF050", # no-unnecessary-dict-comprehension
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "PLR0913", # too many arguments
+    "PLR0912", # too many branches
+    "PLR0915", # too many statements
+    "PLR0911", # too many return statements
+    "PLR2004", # magic value used in comparison
+    "PLR0916", # too many boolean expressions
+    "PLR0917", # too many positional arguments
+    "PLR0918", # too many boolean expressions
+    "PLR0919", # too many boolean expressions
+    "PLR0920", # too many boolean expressions
+    "PLR0921", # too many boolean expressions
+    "PLR0922", # too many boolean expressions
+    "PLR0923", # too many boolean expressions
+    "PLR0924", # too many boolean expressions
+    "PLR0925", # too many boolean expressions
+    "PLR0926", # too many boolean expressions
+    "PLR0927", # too many boolean expressions
+    "PLR0928", # too many boolean expressions
+    "PLR0929", # too many boolean expressions
+    "PLR0930", # too many boolean expressions
+    "PLR0931", # too many boolean expressions
+    "PLR0932", # too many boolean expressions
+    "PLR0933", # too many boolean expressions
+    "PLR0934", # too many boolean expressions
+    "PLR0935", # too many boolean expressions
+    "PLR0936", # too many boolean expressions
+    "PLR0937", # too many boolean expressions
+    "PLR0938", # too many boolean expressions
+    "PLR0939", # too many boolean expressions
+    "PLR0940", # too many boolean expressions
+    "PLR0941", # too many boolean expressions
+    "PLR0942", # too many boolean expressions
+    "PLR0943", # too many boolean expressions
+    "PLR0944", # too many boolean expressions
+    "PLR0945", # too many boolean expressions
+    "PLR0946", # too many boolean expressions
+    "PLR0947", # too many boolean expressions
+    "PLR0948", # too many boolean expressions
+    "PLR0949", # too many boolean expressions
+    "PLR0950", # too many boolean expressions
+    "PLR0951", # too many boolean expressions
+    "PLR0952", # too many boolean expressions
+    "PLR0953", # too many boolean expressions
+    "PLR0954", # too many boolean expressions
+    "PLR0955", # too many boolean expressions
+    "PLR0956", # too many boolean expressions
+    "PLR0957", # too many boolean expressions
+    "PLR0958", # too many boolean expressions
+    "PLR0959", # too many boolean expressions
+    "PLR0960", # too many boolean expressions
+    "PLR0961", # too many boolean expressions
+    "PLR0962", # too many boolean expressions
+    "PLR0963", # too many boolean expressions
+    "PLR0964", # too many boolean expressions
+    "PLR0965", # too many boolean expressions
+    "PLR0966", # too many boolean expressions
+    "PLR0967", # too many boolean expressions
+    "PLR0968", # too many boolean expressions
+    "PLR0969", # too many boolean expressions
+    "PLR0970", # too many boolean expressions
+    "PLR0971", # too many boolean expressions
+    "PLR0972", # too many boolean expressions
+    "PLR0973", # too many boolean expressions
+    "PLR0974", # too many boolean expressions
+    "PLR0975", # too many boolean expressions
+    "PLR0976", # too many boolean expressions
+    "PLR0977", # too many boolean expressions
+    "PLR0978", # too many boolean expressions
+    "PLR0979", # too many boolean expressions
+    "PLR0980", # too many boolean expressions
+    "PLR0981", # too many boolean expressions
+    "PLR0982", # too many boolean expressions
+    "PLR0983", # too many boolean expressions
+    "PLR0984", # too many boolean expressions
+    "PLR0985", # too many boolean expressions
+    "PLR0986", # too many boolean expressions
+    "PLR0987", # too many boolean expressions
+    "PLR0988", # too many boolean expressions
+    "PLR0989", # too many boolean expressions
+    "PLR0990", # too many boolean expressions
+    "PLR0991", # too many boolean expressions
+    "PLR0992", # too many boolean expressions
+    "PLR0993", # too many boolean expressions
+    "PLR0994", # too many boolean expressions
+    "PLR0995", # too many boolean expressions
+    "PLR0996", # too many boolean expressions
+    "PLR0997", # too many boolean expressions
+    "PLR0998", # too many boolean expressions
+    "PLR0999", # too many boolean expressions
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*" = ["PLR2004", "PLR0913", "PLR0912", "PLR0915", "PLR0911", "PLR0916", "PLR0917", "PLR0918", "PLR0919", "PLR0920", "PLR0921", "PLR0922", "PLR0923", "PLR0924", "PLR0925", "PLR0926", "PLR0927", "PLR0928", "PLR0929", "PLR0930", "PLR0931", "PLR0932", "PLR0933", "PLR0934", "PLR0935", "PLR0936", "PLR0937", "PLR0938", "PLR0939", "PLR0940", "PLR0941", "PLR0942", "PLR0943", "PLR0944", "PLR0945", "PLR0946", "PLR0947", "PLR0948", "PLR0949", "PLR0950", "PLR0951", "PLR0952", "PLR0953", "PLR0954", "PLR0955", "PLR0956", "PLR0957", "PLR0958", "PLR0959", "PLR0960", "PLR0961", "PLR0962", "PLR0963", "PLR0964", "PLR0965", "PLR0966", "PLR0967", "PLR0968", "PLR0969", "PLR0970", "PLR0971", "PLR0972", "PLR0973", "PLR0974", "PLR0975", "PLR0976", "PLR0977", "PLR0978", "PLR0979", "PLR0980", "PLR0981", "PLR0982", "PLR0983", "PLR0984", "PLR0985", "PLR0986", "PLR0987", "PLR0988", "PLR0989", "PLR0990", "PLR0991", "PLR0992", "PLR0993", "PLR0994", "PLR0995", "PLR0996", "PLR0997", "PLR0998", "PLR0999"]
+
+# Black configuration
+[tool.black]
+target-version = ['py38']
+line-length = 88
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "requests.*",
+    "xml.*",
+    "argparse.*",
+    "datetime.*",
+    "os.*",
+    "sys.*",
+    "time.*",
+    "uuid.*",
+    "shutil.*",
+    "socket.*",
+    "re.*",
+]
+ignore_missing_imports = true
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["laview_dl"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/build/*",
+    "*/dist/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
