@@ -50,6 +50,26 @@ install: venv deps dev-deps ## Install all dependencies
 install-dev: install ## Install package in development mode
 	${PIP} install -e .
 
+# Install package system-wide using pipx
+.PHONY: pipx
+pipx: ## Install package system-wide using pipx
+	pipx install .
+
+# Install package system-wide using pipx in editable mode
+.PHONY: pipx-dev
+pipx-dev: ## Install package system-wide using pipx in editable mode
+	pipx install --editable .
+
+# Uninstall package from pipx
+.PHONY: pipx-uninstall
+pipx-uninstall: ## Uninstall package from pipx
+	pipx uninstall laview_dl
+
+# Ensure pipx path is in PATH
+.PHONY: pipx-ensurepath
+pipx-ensurepath: ## Ensure pipx path is in PATH
+	pipx ensurepath
+
 # Code formatting with ruff
 .PHONY: format
 format: ${VENV_NAME} ## Format code using ruff
