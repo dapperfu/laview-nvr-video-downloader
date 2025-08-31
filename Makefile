@@ -2,7 +2,7 @@
 # This Makefile provides common development tasks for the project
 
 # Variables
-PYTHON_VERSION := 3.11
+PYTHON_VERSION := 3.12
 VENV_NAME := venv
 PYTHON := ${VENV_NAME}/bin/python
 PIP := ${VENV_NAME}/bin/pip
@@ -34,7 +34,7 @@ ${VENV_NAME}: ## Create virtual environment if it doesn't exist
 # Development dependencies
 .PHONY: dev-deps
 dev-deps: ${VENV_NAME} ## Install development dependencies
-	${PIP} install ruff black mypy pytest pytest-cov pre-commit
+	${PIP} install ruff black mypy pytest pytest-cov pre-commit build
 
 # Production dependencies
 .PHONY: deps
@@ -44,6 +44,11 @@ deps: ${VENV_NAME} ## Install production dependencies
 # Install all dependencies
 .PHONY: install
 install: venv deps dev-deps ## Install all dependencies
+
+# Install package in development mode
+.PHONY: install-dev
+install-dev: install ## Install package in development mode
+	${PIP} install -e .
 
 # Code formatting with ruff
 .PHONY: format
@@ -93,7 +98,8 @@ pre-commit-run: ${VENV_NAME} ## Run pre-commit hooks on all files
 # Package management
 .PHONY: build
 build: ${VENV_NAME} ## Build package
-	${PYTHON} setup.py sdist bdist_wheel
+	${PIP} install build
+	${PYTHON} -m build
 
 .PHONY: clean
 clean: ## Clean build artifacts
@@ -101,13 +107,17 @@ clean: ## Clean build artifacts
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 
+.PHONY: uninstall
+uninstall: ${VENV_NAME} ## Uninstall package
+	${PIP} uninstall -y laview_dl || true
+
 .PHONY: clean-all
-clean-all: clean ## Clean everything including virtual environment
+clean-all: clean uninstall ## Clean everything including virtual environment
 	rm -rf ${VENV_NAME}
 
 # Development workflow
 .PHONY: dev-setup
-dev-setup: install pre-commit-install ## Complete development setup
+dev-setup: install-dev pre-commit-install ## Complete development setup
 	@echo "Development environment setup complete!"
 
 .PHONY: dev-check
@@ -163,3 +173,4 @@ run: ${VENV_NAME} ## Run the CLI tool (example)
 
 # Default target
 .DEFAULT_GOAL := help
+
