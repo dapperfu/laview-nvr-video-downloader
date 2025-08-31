@@ -135,19 +135,24 @@ class CameraSdk:
         )
 
         url = cls.__get_service_url(cam_ip, cls.__DOWNLOAD_VIDEO_URL)
-        answer = requests.get(
-            url=url,
-            auth=auth_handler,
-            data=request_data,
-            stream=True,
-            timeout=cls.default_timeout_seconds,
-        )
-        if answer:
-            with open(file_name, "wb") as out_file:
-                shutil.copyfileobj(answer.raw, out_file)
-            answer.close()
+        try:
+            answer = requests.get(
+                url=url,
+                auth=auth_handler,
+                data=request_data,
+                stream=True,
+                timeout=cls.default_timeout_seconds,
+            )
+            if answer and answer.ok:
+                with open(file_name, "wb") as out_file:
+                    shutil.copyfileobj(answer.raw, out_file)
+                answer.close()
+                return True
+            else:
+                return False
 
-        return answer
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+            return False
 
     @classmethod
     def wait_until_camera_rebooted(
@@ -219,7 +224,7 @@ class CameraSdk:
         request_data = ElementTree.tostring(
             cm_search_description, encoding="utf8", method="xml"
         )
-        answer = cls.__make_get_request(
+        answer = cls.__make_post_request(
             auth_handler, cam_ip, cls.__SEARCH_VIDEO_URL, request_data
         )
 
@@ -251,8 +256,16 @@ class CameraSdk:
         return re.sub(' xmlns="[^"]+"', "", xml_text, count=0)
 
     @classmethod
-    def __make_get_request(cls, auth_handler, cam_ip, url, request_data=None):
+    def __make_get_request(cls, auth_handler, cam_ip, url):
         return requests.get(
+            url=cls.__get_service_url(cam_ip, url),
+            auth=auth_handler,
+            timeout=cls.default_timeout_seconds,
+        )
+
+    @classmethod
+    def __make_post_request(cls, auth_handler, cam_ip, url, request_data):
+        return requests.post(
             url=cls.__get_service_url(cam_ip, url),
             auth=auth_handler,
             data=request_data,
