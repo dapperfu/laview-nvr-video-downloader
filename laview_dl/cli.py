@@ -12,9 +12,9 @@ from .date_parser import FlexibleDateParser
 
 def parse_parameters() -> Optional[Namespace]:
     usage = """
-  %(prog)s [--setup|--list-devices|--remove-device] [-u] [--device DEVICE|--camera CAMERA] [CAM_IP] START_DATE START_TIME [END_DATE END_TIME]
+  %(prog)s [--setup|--list-devices|--remove-device] [-u] [--device DEVICE|--camera CAMERA] [CAM_IP] START_DATETIME [END_DATETIME]
   
-  If END_DATE and END_TIME aren't specified use now().
+  If END_DATETIME isn't specified use now().
 
   Use the time setting on the DVR.
   
@@ -28,6 +28,7 @@ def parse_parameters() -> Optional[Namespace]:
     - Natural: today, yesterday, now, 2 days ago
     - Formatted: August 30, 2025, 08:00 AM
     - Relative: next week, last month, this year
+    - Combined: "8 AM yesterday", "August 30, 2025 08:00 AM"
   """
 
     epilog = """
@@ -42,15 +43,16 @@ Examples:
   python %(prog)s --remove-device
   
   # Use a configured device with flexible date formats
-  python %(prog)s --device office-nvr "August 30, 2025" "08:00 AM" "August 31, 2025" "08:00 AM"
-  python %(prog)s --device home-camera today "06:00 AM" tomorrow "06:00 AM"
-  python %(prog)s --device shop-nvr yesterday "08:00 AM" now
+  python %(prog)s --device office-nvr "August 30, 2025 08:00 AM" "August 31, 2025 08:00 AM"
+  python %(prog)s --device home-camera "today 06:00 AM" "tomorrow 06:00 AM"
+  python %(prog)s --device shop-nvr "yesterday 08:00 AM" "now"
+  python %(prog)s --device camera "8 AM yesterday" "6 PM today"
   
   # Use IP address directly (legacy mode)
-  python %(prog)s 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
-  python %(prog)s --camera 2 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
-  python %(prog)s --camera 3 10.145.17.202 2020-04-15 00:30:00 2020-04-15 10:59:59
-  LAVIEW_USER=admin LAVIEW_PASS=qwert123 python %(prog)s --camera 1 10.145.17.202 2020-04-15 00:30:00
+  python %(prog)s 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
+  python %(prog)s --camera 2 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
+  python %(prog)s --camera 3 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
+  LAVIEW_USER=admin LAVIEW_PASS=qwert123 python %(prog)s --camera 1 10.145.17.202 "2020-04-15 00:30:00"
   
         """
 
@@ -68,19 +70,12 @@ Examples:
     
     # Legacy arguments (only used when not using --device)
     parser.add_argument("IP", nargs="?", help="camera's IP address (required when not using --device)")
-    parser.add_argument("START_DATE", nargs="?", help="start date of interval (required when not using --device)")
-    parser.add_argument("START_TIME", nargs="?", help="start time of interval (required when not using --device)")
+    parser.add_argument("START_DATETIME", nargs="?", help="start datetime (required when not using --device)")
     parser.add_argument(
-        "END_DATE",
+        "END_DATETIME",
         nargs="?",
-        help="end date of interval",
-        default=datetime.now().strftime("%Y-%m-%d"),
-    )
-    parser.add_argument(
-        "END_TIME",
-        nargs="?",
-        help="end time of interval",
-        default=datetime.now().strftime("%H:%M:%S"),
+        help="end datetime",
+        default="now",
     )
     parser.add_argument(
         "--camera",
@@ -99,8 +94,8 @@ Examples:
 
 def validate_legacy_args(args: Namespace) -> bool:
     """Validate that required arguments are provided for legacy mode."""
-    if not args.IP or not args.START_DATE or not args.START_TIME:
-        print("Error: IP, START_DATE, and START_TIME are required when not using --device")
+    if not args.IP or not args.START_DATETIME:
+        print("Error: IP and START_DATETIME are required when not using --device")
         return False
     return True
 
@@ -111,38 +106,36 @@ def get_device_config(device_name: str) -> Optional[dict]:
     return config_manager.get_device_config(device_name)
 
 
-def parse_datetime_strings(start_date: str, start_time: str, end_date: str, end_time: str) -> tuple[str, str]:
+def parse_datetime_strings(start_datetime: str, end_datetime: str) -> tuple[str, str]:
     """
-    Parse date and time strings into datetime strings.
+    Parse datetime strings into formatted datetime strings.
     
     Args:
-        start_date: Start date string
-        start_time: Start time string
-        end_date: End date string
-        end_time: End time string
+        start_datetime: Start datetime string
+        end_datetime: End datetime string
         
     Returns:
         Tuple of (start_datetime_str, end_datetime_str)
     """
     try:
-        # Try to parse start date and time
-        start_datetime = FlexibleDateParser.parse_date_time_pair(start_date, start_time)
-        start_datetime_str = start_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        # Parse start datetime
+        start_dt = FlexibleDateParser.parse_datetime(start_datetime)
+        start_datetime_str = start_dt.strftime("%Y-%m-%d %H:%M:%S")
     except ValueError as e:
-        print(f"Error parsing start date/time: {e}")
-        print(f"Start date: '{start_date}', Start time: '{start_time}'")
+        print(f"Error parsing start datetime: {e}")
+        print(f"Start datetime: '{start_datetime}'")
         print("Supported formats:")
         for fmt in FlexibleDateParser.get_supported_formats()[:5]:  # Show first 5 formats
             print(f"  - {fmt}")
         raise
     
     try:
-        # Try to parse end date and time
-        end_datetime = FlexibleDateParser.parse_date_time_pair(end_date, end_time)
-        end_datetime_str = end_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        # Parse end datetime
+        end_dt = FlexibleDateParser.parse_datetime(end_datetime)
+        end_datetime_str = end_dt.strftime("%Y-%m-%d %H:%M:%S")
     except ValueError as e:
-        print(f"Error parsing end date/time: {e}")
-        print(f"End date: '{end_date}', End time: '{end_time}'")
+        print(f"Error parsing end datetime: {e}")
+        print(f"End datetime: '{end_datetime}'")
         print("Supported formats:")
         for fmt in FlexibleDateParser.get_supported_formats()[:5]:  # Show first 5 formats
             print(f"  - {fmt}")
@@ -196,18 +189,16 @@ def main():
             CameraSdk.init(device_config["timeout"])
         
         # Check if we have the required arguments
-        if not parameters.START_DATE or not parameters.START_TIME:
-            print("Error: START_DATE and START_TIME are required")
-            print(f"Usage: python -m laview_dl.cli --device {parameters.device} START_DATE START_TIME [END_DATE END_TIME]")
+        if not parameters.START_DATETIME:
+            print("Error: START_DATETIME is required")
+            print(f"Usage: python -m laview_dl.cli --device {parameters.device} START_DATETIME [END_DATETIME]")
             return
         
         try:
             # Parse the datetime strings using flexible parser
             start_datetime_str, end_datetime_str = parse_datetime_strings(
-                parameters.START_DATE, 
-                parameters.START_TIME, 
-                parameters.END_DATE, 
-                parameters.END_TIME
+                parameters.START_DATETIME, 
+                parameters.END_DATETIME
             )
             
             init(camera_ip, camera_channel)
@@ -233,10 +224,8 @@ def main():
 
         # Parse the datetime strings using flexible parser
         start_datetime_str, end_datetime_str = parse_datetime_strings(
-            parameters.START_DATE, 
-            parameters.START_TIME, 
-            parameters.END_DATE, 
-            parameters.END_TIME
+            parameters.START_DATETIME, 
+            parameters.END_DATETIME
         )
 
         work(camera_ip, start_datetime_str, end_datetime_str, parameters.utc, camera_channel)

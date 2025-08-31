@@ -30,15 +30,23 @@ class FlexibleDateParser:
         "%d/%m/%Y",               # 30/08/2025
         "%B %d, %Y %H:%M:%S",     # August 30, 2025 08:00:00
         "%B %d, %Y %H:%M",        # August 30, 2025 08:00
+        "%B %d, %Y %I:%M %p",     # August 30, 2025 08:00 AM
+        "%B %d, %Y %I:%M:%S %p",  # August 30, 2025 08:00:00 AM
         "%B %d, %Y",              # August 30, 2025
         "%b %d, %Y %H:%M:%S",     # Aug 30, 2025 08:00:00
         "%b %d, %Y %H:%M",        # Aug 30, 2025 08:00
+        "%b %d, %Y %I:%M %p",     # Aug 30, 2025 08:00 AM
+        "%b %d, %Y %I:%M:%S %p",  # Aug 30, 2025 08:00:00 AM
         "%b %d, %Y",              # Aug 30, 2025
         "%d %B %Y %H:%M:%S",      # 30 August 2025 08:00:00
         "%d %B %Y %H:%M",         # 30 August 2025 08:00
+        "%d %B %Y %I:%M %p",      # 30 August 2025 08:00 AM
+        "%d %B %Y %I:%M:%S %p",   # 30 August 2025 08:00:00 AM
         "%d %B %Y",               # 30 August 2025
         "%d %b %Y %H:%M:%S",      # 30 Aug 2025 08:00:00
         "%d %b %Y %H:%M",         # 30 Aug 2025 08:00
+        "%d %b %Y %I:%M %p",      # 30 Aug 2025 08:00 AM
+        "%d %b %Y %I:%M:%S %p",   # 30 Aug 2025 08:00:00 AM
         "%d %b %Y",               # 30 Aug 2025
     ]
     
@@ -109,6 +117,11 @@ class FlexibleDateParser:
         combined_result = cls._try_combine_date_time(text)
         if combined_result is not None:
             return combined_result
+        
+        # Try parsing combined natural language with time
+        combined_natural_result = cls._parse_combined_natural_language(text)
+        if combined_natural_result is not None:
+            return combined_natural_result
         
         raise ValueError(f'Unable to parse datetime: "{text}"')
     
@@ -319,3 +332,272 @@ class FlexibleDateParser:
             "Formatted: August 30, 2025, 08/30/2025, 30/08/2025"
         ])
         return formats
+
+    @classmethod
+    def _parse_combined_natural_language(cls, text: str) -> Optional[datetime]:
+        """Parse combined natural language like '8 AM yesterday' or 'yesterday 8 AM'."""
+        text_lower = text.lower()
+        now = datetime.now()
+        
+        # Patterns for time + natural language
+        time_natural_patterns = [
+            # "8 AM yesterday", "2:30 PM today", "6:00 AM tomorrow"
+            (r'(\d{1,2}:\d{2}(:\d{2})?\s*[ap]m)\s+(today|yesterday|tomorrow)', 'time_natural'),
+            # "8 AM 2 days ago", "2:30 PM next week"
+            (r'(\d{1,2}:\d{2}(:\d{2})?\s*[ap]m)\s+(\d+)\s+(days?|weeks?|months?|years?)\s+(ago|from\s+now)', 'time_relative'),
+            # "8 AM this week", "2:30 PM last month"
+            (r'(\d{1,2}:\d{2}(:\d{2})?\s*[ap]m)\s+(this|next|last)\s+(week|month|year)', 'time_period'),
+        ]
+        
+        # Patterns for natural language + time
+        natural_time_patterns = [
+            # "yesterday 8 AM", "today 2:30 PM", "tomorrow 6:00 AM"
+            (r'(today|yesterday|tomorrow)\s+(\d{1,2}:\d{2}(:\d{2})?\s*[ap]m)', 'natural_time'),
+            # "2 days ago 8 AM", "next week 2:30 PM"
+            (r'(\d+)\s+(days?|weeks?|months?|years?)\s+(ago|from\s+now)\s+(\d{1,2}:\d{2}(:\d{2})?\s*[ap]m)', 'relative_time'),
+            # "this week 8 AM", "last month 2:30 PM"
+            (r'(this|next|last)\s+(week|month|year)\s+(\d{1,2}:\d{2}(:\d{2})?\s*[ap]m)', 'period_time'),
+        ]
+        
+        # Try time + natural language patterns
+        for pattern, pattern_type in time_natural_patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                if pattern_type == 'time_natural':
+                    time_str = match.group(1)
+                    natural = match.group(3)
+                    
+                    # Parse the time
+                    time_obj = cls._parse_time_string(time_str)
+                    if time_obj is None:
+                        continue
+                    
+                    # Get the base date
+                    if natural == 'today':
+                        base_date = now.date()
+                    elif natural == 'yesterday':
+                        base_date = (now - timedelta(days=1)).date()
+                    elif natural == 'tomorrow':
+                        base_date = (now + timedelta(days=1)).date()
+                    else:
+                        continue
+                    
+                    return datetime.combine(base_date, time_obj)
+                
+                elif pattern_type == 'time_relative':
+                    time_str = match.group(1)
+                    count = int(match.group(3))
+                    unit = match.group(4)
+                    direction = match.group(5)
+                    
+                    # Parse the time
+                    time_obj = cls._parse_time_string(time_str)
+                    if time_obj is None:
+                        continue
+                    
+                    # Calculate the base date
+                    if unit == 'days':
+                        delta = timedelta(days=count)
+                    elif unit == 'weeks':
+                        delta = timedelta(weeks=count)
+                    elif unit == 'months':
+                        delta = timedelta(days=count * 30)  # Approximate
+                    elif unit == 'years':
+                        delta = timedelta(days=count * 365)  # Approximate
+                    else:
+                        continue
+                    
+                    if direction == 'ago':
+                        base_date = (now - delta).date()
+                    else:  # from now
+                        base_date = (now + delta).date()
+                    
+                    return datetime.combine(base_date, time_obj)
+                
+                elif pattern_type == 'time_period':
+                    time_str = match.group(1)
+                    modifier = match.group(3)
+                    period = match.group(4)
+                    
+                    # Parse the time
+                    time_obj = cls._parse_time_string(time_str)
+                    if time_obj is None:
+                        continue
+                    
+                    # Calculate the base date based on period
+                    if period == 'week':
+                        today = now.date()
+                        days_since_monday = today.weekday()
+                        monday = today - timedelta(days=days_since_monday)
+                        
+                        if modifier == 'this':
+                            base_date = monday
+                        elif modifier == 'next':
+                            base_date = monday + timedelta(days=7)
+                        elif modifier == 'last':
+                            base_date = monday - timedelta(days=7)
+                        else:
+                            continue
+                    
+                    elif period == 'month':
+                        current_month = now.month
+                        current_year = now.year
+                        
+                        if modifier == 'this':
+                            base_date = datetime(current_year, current_month, 1).date()
+                        elif modifier == 'next':
+                            if current_month == 12:
+                                base_date = datetime(current_year + 1, 1, 1).date()
+                            else:
+                                base_date = datetime(current_year, current_month + 1, 1).date()
+                        elif modifier == 'last':
+                            if current_month == 1:
+                                base_date = datetime(current_year - 1, 12, 1).date()
+                            else:
+                                base_date = datetime(current_year, current_month - 1, 1).date()
+                        else:
+                            continue
+                    
+                    elif period == 'year':
+                        current_year = now.year
+                        
+                        if modifier == 'this':
+                            base_date = datetime(current_year, 1, 1).date()
+                        elif modifier == 'next':
+                            base_date = datetime(current_year + 1, 1, 1).date()
+                        elif modifier == 'last':
+                            base_date = datetime(current_year - 1, 1, 1).date()
+                        else:
+                            continue
+                    else:
+                        continue
+                    
+                    return datetime.combine(base_date, time_obj)
+        
+        # Try natural language + time patterns
+        for pattern, pattern_type in natural_time_patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                if pattern_type == 'natural_time':
+                    natural = match.group(1)
+                    time_str = match.group(2)
+                    
+                    # Parse the time
+                    time_obj = cls._parse_time_string(time_str)
+                    if time_obj is None:
+                        continue
+                    
+                    # Get the base date
+                    if natural == 'today':
+                        base_date = now.date()
+                    elif natural == 'yesterday':
+                        base_date = (now - timedelta(days=1)).date()
+                    elif natural == 'tomorrow':
+                        base_date = (now + timedelta(days=1)).date()
+                    else:
+                        continue
+                    
+                    return datetime.combine(base_date, time_obj)
+                
+                elif pattern_type == 'relative_time':
+                    count = int(match.group(1))
+                    unit = match.group(2)
+                    direction = match.group(3)
+                    time_str = match.group(4)
+                    
+                    # Parse the time
+                    time_obj = cls._parse_time_string(time_str)
+                    if time_obj is None:
+                        continue
+                    
+                    # Calculate the base date
+                    if unit == 'days':
+                        delta = timedelta(days=count)
+                    elif unit == 'weeks':
+                        delta = timedelta(weeks=count)
+                    elif unit == 'months':
+                        delta = timedelta(days=count * 30)  # Approximate
+                    elif unit == 'years':
+                        delta = timedelta(days=count * 365)  # Approximate
+                    else:
+                        continue
+                    
+                    if direction == 'ago':
+                        base_date = (now - delta).date()
+                    else:  # from now
+                        base_date = (now + delta).date()
+                    
+                    return datetime.combine(base_date, time_obj)
+                
+                elif pattern_type == 'period_time':
+                    modifier = match.group(1)
+                    period = match.group(2)
+                    time_str = match.group(3)
+                    
+                    # Parse the time
+                    time_obj = cls._parse_time_string(time_str)
+                    if time_obj is None:
+                        continue
+                    
+                    # Calculate the base date based on period
+                    if period == 'week':
+                        today = now.date()
+                        days_since_monday = today.weekday()
+                        monday = today - timedelta(days=days_since_monday)
+                        
+                        if modifier == 'this':
+                            base_date = monday
+                        elif modifier == 'next':
+                            base_date = monday + timedelta(days=7)
+                        elif modifier == 'last':
+                            base_date = monday - timedelta(days=7)
+                        else:
+                            continue
+                    
+                    elif period == 'month':
+                        current_month = now.month
+                        current_year = now.year
+                        
+                        if modifier == 'this':
+                            base_date = datetime(current_year, current_month, 1).date()
+                        elif modifier == 'next':
+                            if current_month == 12:
+                                base_date = datetime(current_year + 1, 1, 1).date()
+                            else:
+                                base_date = datetime(current_year, current_month + 1, 1).date()
+                        elif modifier == 'last':
+                            if current_month == 1:
+                                base_date = datetime(current_year - 1, 12, 1).date()
+                            else:
+                                base_date = datetime(current_year, current_month - 1, 1).date()
+                        else:
+                            continue
+                    
+                    elif period == 'year':
+                        current_year = now.year
+                        
+                        if modifier == 'this':
+                            base_date = datetime(current_year, 1, 1).date()
+                        elif modifier == 'next':
+                            base_date = datetime(current_year + 1, 1, 1).date()
+                        elif modifier == 'last':
+                            base_date = datetime(current_year - 1, 1, 1).date()
+                        else:
+                            continue
+                    else:
+                        continue
+                    
+                    return datetime.combine(base_date, time_obj)
+        
+        return None
+    
+    @classmethod
+    def _parse_time_string(cls, time_str: str) -> Optional[datetime.time]:
+        """Parse a time string into a time object."""
+        for fmt in cls.TIME_FORMATS:
+            try:
+                time_obj = datetime.strptime(time_str, fmt)
+                return time_obj.time()
+            except ValueError:
+                continue
+        return None
