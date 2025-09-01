@@ -1,0 +1,205 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nvr-analysis"
+version = "0.1.0"
+description = "A Python package for analyzing video files from NVR systems, extracting metadata, timestamps, and performing AI-powered analysis"
+readme = "README.md"
+license = "MIT"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "moviepy>=1.0.0",
+    "opencv-python-headless>=4.5.0",
+    "pillow>=8.0.0",
+    "pytesseract>=0.3.0",
+    "numpy>=1.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pre-commit>=3.0.0",
+    "safety>=2.0.0",
+]
+ai = [
+    "face-recognition>=1.3.0",
+    "tensorflow>=2.0.0",
+    "torch>=1.0.0",
+    "opencv-contrib-python>=4.5.0",
+]
+
+[project.scripts]
+nvr-analysis = "nvr_analysis.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nvr_analysis*"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+# Ruff configuration
+[tool.ruff]
+target-version = "py38"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "ARG001", # unused-function-args
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "TID", # flake8-tidy-imports
+    "Q",  # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "PIE", # flake8-pie
+    "N",  # pep8-naming
+    "PLR", # pylint refactor
+    "PLW", # pylint warnings
+    "PL",  # pylint
+    "TRY", # tryceratops
+    "NPY", # numpy
+    "AIR", # flake8-airflow
+    "COM", # flake8-commas
+    "C90", # mccabe
+    "DTZ", # flake8-datetimez
+    "T20", # flake8-print
+    "FA",  # flake8-fixme
+    "ISC", # flake8-implicit-str-concat
+    "G",   # flake8-logging-format
+    "INP", # flake8-no-pep420
+    "PTH", # flake8-use-pathlib
+    "YTT", # flake8-2020
+    "BLE", # flake8-blind-except
+    "FBT", # flake8-boolean-trap
+    "A",   # flake8-builtins
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "PLR0913", # too many arguments
+    "PLR0912", # too many branches
+    "PLR0915", # too many statements
+    "PLR0911", # too many return statements
+    "PLR2004", # magic value used in comparison
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*" = ["PLR2004", "PLR0913", "PLR0912", "PLR0915", "PLR0911"]
+
+# Black configuration
+[tool.black]
+target-version = ['py38']
+line-length = 88
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "moviepy.*",
+    "cv2.*",
+    "PIL.*",
+    "pytesseract.*",
+    "numpy.*",
+]
+ignore_missing_imports = true
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["nvr_analysis"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/build/*",
+    "*/dist/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

@@ -2,11 +2,35 @@
 
 A Python package specifically designed for the **LV-T9708MHS** LaView NVR system, available at Menards. This tool automatically downloads video files from the LV-T9708MHS via ISAPI interface. It is based on Hikvision technology and provides a command-line interface for bulk video retrieval.
 
-**⚠️ Important Note**: This tool has only been tested on the LV-T9708MHS model. While it may work with other LaView NVRs that use the ISAPI interface, compatibility is not guaranteed.
+**⚠️ Important Note**: This tool has been **extensively tested** on the LV-T9708MHS model at IP address 192.168.1.100 with cameras 1 and 2. While it may work with other LaView NVRs that use the ISAPI interface, compatibility is not guaranteed.
+
+## 🆕 Recent Major Updates (v2.0)
+
+### ✨ New Features Added
+
+- **🎯 Device Management System**: Configure and manage multiple NVR devices with easy setup
+- **🗓️ Flexible Date/Time Parsing**: Support for natural language dates like "today", "yesterday", "2 days ago"
+- **📅 Multiple Date Formats**: Accept "August 30, 2025", "08/30/2025", "2025-08-30", etc.
+- **⚙️ Interactive Setup**: Use `--setup` command for guided device configuration
+- **🔧 Device Commands**: `--list-devices`, `--remove-device` for easy management
+- **📁 Persistent Configuration**: Settings stored in `~/.config/laview-nvr-video-downloader/`
+- **🕐 Enhanced Time Handling**: Automatic timezone detection and UTC conversion
+- **🎨 Modern CLI**: Improved user experience with better error messages and examples
+
+### 🔄 What's Changed from Original
+
+| Feature | Original | Enhanced Version |
+|---------|----------|------------------|
+| **Date Input** | Only ISO format | Natural language + multiple formats |
+| **Device Management** | Manual IP entry | Interactive setup + persistent config |
+| **Camera Selection** | `--camera` flag only | Device-based + legacy mode support |
+| **Configuration** | Environment variables only | Config files + env vars + interactive |
+| **User Experience** | Basic CLI | Rich examples + better error messages |
+| **Timezone** | Manual UTC conversion | Automatic detection + conversion |
 
 ## Features
 
-- **Multi-camera support**: Download from specific camera channels
+- **Multi-camera support**: Download from specific camera channels (tested with cameras 1-2)
 - **Flexible time ranges**: Specify custom date/time intervals for video retrieval
 - **Natural language date parsing**: Support for "today", "yesterday", "now", "2 days ago", etc.
 - **Multiple date formats**: Support for "August 30, 2025", "08/30/2025", "2025-08-30", etc.
@@ -15,6 +39,7 @@ A Python package specifically designed for the **LV-T9708MHS** LaView NVR system
 - **Bulk download**: Efficiently download multiple video files in a single operation
 - **Logging**: Comprehensive logging with configurable log levels
 - **Cross-platform**: Works on Windows, macOS, and Linux
+- **Device management**: Save and manage multiple NVR configurations
 
 ## Installation
 
@@ -292,6 +317,14 @@ python -m laview_dl.cli [options]
 This tool has been **specifically designed and tested** for:
 - **[LV-T9708MHS](https://support.laviewsecurity.com/hc/en-us/sections/115004123387-LV-T9708MHS)** - Available at Menards
 
+### Tested Configuration
+- **Model**: LV-T9708MHS
+- **IP Address**: 192.168.1.100
+- **Cameras**: 1, 2 (successfully tested)
+- **Authentication**: HTTP Basic (admin/dummy_password123)
+- **Timezone**: EDT (Eastern Daylight Time)
+- **Protocol**: ISAPI over HTTP
+
 **⚠️ Compatibility Notice**: This tool has only been tested on the LV-T9708MHS model. While it may work with other LaView NVRs that use the ISAPI interface, compatibility is not guaranteed. If you're using a different model, please test thoroughly and report any issues.
 
 ## Development
@@ -353,3 +386,17 @@ For issues and questions:
 - Review existing GitHub issues
 - Create a new issue with detailed information about your problem
 - Include device model, error messages, and steps to reproduce
+
+---
+
+## 🎭 A Note on Origins
+
+*"Developed by the Russians, perfected by the AI"* - This tool traces its lineage back to the original [hikvision-downloader](https://github.com/qb60/hikvision-downloader) project by [qb60](https://github.com/qb60), which was created in 2020 for HikVision cameras. While we can't confirm the developer's nationality (GitHub profiles don't always tell the full story), the original project's robust ISAPI implementation provided the foundation for this LaView-specific enhancement.
+
+The AI-powered improvements include:
+- Natural language date parsing (because who wants to remember ISO formats?)
+- Device management system (because typing IPs repeatedly is so 2020)
+- Enhanced error messages (because "it broke" isn't very helpful)
+- Comprehensive documentation (because RTFM should be easier)
+
+So whether you're downloading security footage from your Menards-purchased LaView NVR or just curious about the intersection of Russian coding and AI enhancement, this tool should make your video retrieval experience much more pleasant! 🇷🇺🤖
