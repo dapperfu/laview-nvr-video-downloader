@@ -112,8 +112,28 @@ python -m laview_dl.cli --remove-device
 ### Configuration Storage
 
 Device configurations are stored in:
-- **Linux/macOS**: `~/.config/laview-nvr-video-downloader/devices.json`
-- **Windows**: `%APPDATA%\laview-nvr-video-downloader\devices.json`
+- **Linux/macOS**: `~/.config/laview-nvr-video-downloader/devices.toml`
+- **Windows**: `%APPDATA%\laview-nvr-video-downloader\devices.toml`
+
+The configuration file uses TOML format for better readability and easier manual editing:
+
+```toml
+[shop-nvr]
+device_name = "shop-nvr"
+ip_address = "192.168.1.100"
+camera_channel = 1
+timeout = 10
+username = "admin"
+password = "dummy_password123"
+
+[office-camera]
+device_name = "office-camera"
+ip_address = "192.168.1.101"
+camera_channel = 2
+timeout = 15
+username = "admin"
+# password = "use environment variable LAVIEW_NVR_PASS"
+```
 
 The configuration file contains:
 - Device names and IP addresses
@@ -122,6 +142,8 @@ The configuration file contains:
 - Username/password (if provided during setup)
 
 **Security Note**: Credentials are stored in plain text. Consider using environment variables for sensitive information.
+
+**Migration**: Existing JSON configurations are automatically migrated to TOML format on first use.
 
 ### Authentication Types
 

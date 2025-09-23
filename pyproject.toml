@@ -27,6 +27,7 @@ classifiers = [
 requires-python = ">=3.8"
 dependencies = [
     "requests>=2.25.0",
+    "tomli-w>=1.0.0",
 ]
 
 [project.optional-dependencies]

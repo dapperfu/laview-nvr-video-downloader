@@ -1,13 +1,31 @@
 """
 Configuration management for laview-nvr-video-downloader.
 
-This module handles device configuration storage and retrieval using JSON files.
+This module handles device configuration storage and retrieval using TOML files.
+Supports both TOML and JSON formats for backward compatibility.
 """
 
 import json
 import os
 from pathlib import Path
 from typing import Dict, Optional, Any
+
+try:
+    import tomllib  # Built-in in Python 3.11+ for reading
+    import tomli_w  # For writing TOML files
+    TOML_AVAILABLE = True
+    TOML_READER = tomllib
+    TOML_WRITER = tomli_w
+except ImportError:
+    try:
+        import toml  # Fallback to external toml library
+        TOML_AVAILABLE = True
+        TOML_READER = toml
+        TOML_WRITER = toml
+    except ImportError:
+        TOML_AVAILABLE = False
+        TOML_READER = None
+        TOML_WRITER = None
 
 
 class ConfigManager:
@@ -25,7 +43,9 @@ class ConfigManager:
             config_dir = os.path.expanduser("~/.config/laview-nvr-video-downloader")
         
         self.config_dir = Path(config_dir)
-        self.config_file = self.config_dir / "devices.json"
+        # Use TOML as primary format, with JSON fallback
+        self.config_file = self.config_dir / "devices.toml"
+        self.json_config_file = self.config_dir / "devices.json"
         self._ensure_config_dir()
     
     def _ensure_config_dir(self) -> None:
@@ -85,20 +105,51 @@ class ConfigManager:
         return False
     
     def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from file."""
-        if not self.config_file.exists():
-            return {}
+        """Load configuration from file. Supports TOML and JSON formats."""
+        # Try TOML first (preferred format)
+        if self.config_file.exists() and TOML_AVAILABLE:
+            try:
+                with open(self.config_file, 'rb') as f:
+                    return TOML_READER.load(f)
+            except (Exception, IOError):
+                pass
         
-        try:
-            with open(self.config_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError):
-            return {}
+        # Fallback to JSON if TOML fails or not available
+        if self.json_config_file.exists():
+            try:
+                with open(self.json_config_file, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    # Migrate to TOML format
+                    self._migrate_to_toml(config)
+                    return config
+            except (json.JSONDecodeError, IOError):
+                pass
+        
+        return {}
+    
+    def _migrate_to_toml(self, config: Dict[str, Any]) -> None:
+        """Migrate JSON configuration to TOML format."""
+        if TOML_AVAILABLE and config:
+            try:
+                with open(self.config_file, 'wb') as f:
+                    TOML_WRITER.dump(config, f)
+                # Backup the old JSON file
+                if self.json_config_file.exists():
+                    backup_file = self.json_config_file.with_suffix('.json.backup')
+                    self.json_config_file.rename(backup_file)
+            except Exception:
+                # If migration fails, keep using JSON
+                pass
     
     def _save_config(self, config: Dict[str, Any]) -> None:
-        """Save configuration to file."""
-        with open(self.config_file, 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=2, ensure_ascii=False)
+        """Save configuration to file. Uses TOML format if available."""
+        if TOML_AVAILABLE:
+            with open(self.config_file, 'wb') as f:
+                TOML_WRITER.dump(config, f)
+        else:
+            # Fallback to JSON if TOML not available
+            with open(self.json_config_file, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
 
 
 def prompt_for_device_config() -> Dict[str, Any]:

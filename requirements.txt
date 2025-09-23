@@ -1,5 +1,6 @@
 # Production dependencies
 requests>=2.25.0
+tomli-w>=1.0.0
 
 # Development dependencies (install with: pip install -r requirements.txt[dev])
 # These are also defined in pyproject.toml for modern Python packaging
