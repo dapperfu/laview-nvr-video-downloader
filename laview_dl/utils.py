@@ -11,8 +11,9 @@ CAMERA_REBOOT_TIME_SECONDS = 90
 DELAY_BEFORE_CHECKING_AVAILABILITY_SECONDS = 30
 DEFAULT_TIMEOUT_SECONDS = 10
 DELAY_BETWEEN_DOWNLOADING_FILES_SECONDS = 1
+DELAY_AFTER_TIMEOUT_SECONDS = 5
 
-MAX_VIDEOS_NUMBER_IN_ONE_REQUEST = 100
+MAX_VIDEOS_NUMBER_IN_ONE_REQUEST = 50  # Reduced from 100 for better stability
 
 video_file_extension = ".mp4"
 
@@ -38,6 +39,8 @@ def download_tracks(tracks, auth_handler, cam_ip, camera_channel=1):
         while True:
             if download_file_with_retry(auth_handler, cam_ip, track, camera_channel):
                 break
+            else:
+                time.sleep(DELAY_AFTER_TIMEOUT_SECONDS)
 
         time.sleep(DELAY_BETWEEN_DOWNLOADING_FILES_SECONDS)
 
