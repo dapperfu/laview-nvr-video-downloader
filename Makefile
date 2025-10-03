@@ -6,6 +6,7 @@ PYTHON_VERSION := 3.12
 VENV_NAME := venv
 PYTHON := ${VENV_NAME}/bin/python
 PIP := ${VENV_NAME}/bin/pip
+UV := ${VENV_NAME}/bin/uv
 RUFF := ${VENV_NAME}/bin/ruff
 PYTEST := ${VENV_NAME}/bin/pytest
 BLACK := ${VENV_NAME}/bin/black
@@ -29,26 +30,28 @@ venv: ${VENV_NAME} ## Create virtual environment
 
 ${VENV_NAME}: ## Create virtual environment if it doesn't exist
 	python${PYTHON_VERSION} -m venv ${VENV_NAME}
-	${PIP} install --upgrade pip setuptools wheel
+	${PIP} install --upgrade pip setuptools wheel uv
 
 # Development dependencies
 .PHONY: dev-deps
 dev-deps: ${VENV_NAME} ## Install development dependencies
-	${PIP} install ruff black mypy pytest pytest-cov pre-commit build
+	${UV} pip install --python ${PYTHON} ruff black mypy pytest pytest-cov pre-commit build
 
 # Production dependencies
 .PHONY: deps
 deps: ${VENV_NAME} ## Install production dependencies
-	${PIP} install -r requirements.txt
+	${UV} pip install --python ${PYTHON} -r requirements.txt
 
 # Install all dependencies
 .PHONY: install
-install: venv deps dev-deps ## Install all dependencies
+install: ${VENV_NAME} ## Install all dependencies
+	${UV} pip install --python ${PYTHON} -r requirements.txt
+	${UV} pip install --python ${PYTHON} ruff black mypy pytest pytest-cov pre-commit build
 
 # Install package in development mode
 .PHONY: install-dev
 install-dev: install ## Install package in development mode
-	${PIP} install -e .
+	${UV} pip install --python ${PYTHON} -e .
 
 # Install package system-wide using pipx
 .PHONY: pipx
