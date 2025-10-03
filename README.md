@@ -158,25 +158,25 @@ The tool automatically detects and uses the appropriate authentication method:
 
 ```bash
 # Configure a new device
-python -m laview_dl.cli --setup
+laview-cli --setup
 
 # List configured devices
-python -m laview_dl.cli --list-devices
+laview-cli --list-devices
 
 # Remove a device
-python -m laview_dl.cli --remove-device
+laview-cli --remove-device
 ```
 
 ### Device-Based Commands (Recommended)
 
 ```bash
-python -m laview_dl.cli --device DEVICE_NAME START_DATE START_TIME [END_DATE] [END_TIME]
+laview-cli --device DEVICE_NAME START_DATE START_TIME [END_DATE] [END_TIME]
 ```
 
 ### Legacy Commands (Direct IP)
 
 ```bash
-python -m laview_dl.cli [--camera CAMERA] CAM_IP START_DATE START_TIME [END_DATE] [END_TIME]
+laview-cli [--camera CAMERA] CAM_IP START_DATE START_TIME [END_DATE] [END_TIME]
 ```
 
 ### Command Line Arguments
@@ -199,38 +199,38 @@ python -m laview_dl.cli [--camera CAMERA] CAM_IP START_DATE START_TIME [END_DATE
 #### Using configured devices (recommended)
 ```bash
 # Download from a configured device with flexible date formats
-python -m laview_dl.cli --device office-nvr "August 30, 2025 08:00 AM" "August 31, 2025 08:00 AM"
-python -m laview_dl.cli --device home-camera "today 06:00 AM" "tomorrow 06:00 AM"
-python -m laview_dl.cli --device shop-nvr "yesterday 08:00 AM" "now"
-python -m laview_dl.cli --device camera "8 AM yesterday" "6 PM today"
+laview-cli --device office-nvr "August 30, 2025 08:00 AM" "August 31, 2025 08:00 AM"
+laview-cli --device home-camera "today 06:00 AM" "tomorrow 06:00 AM"
+laview-cli --device shop-nvr "yesterday 08:00 AM" "now"
+laview-cli --device camera "8 AM yesterday" "6 PM today"
 
 # Download from a configured device (legacy format)
-python -m laview_dl.cli --device office-nvr "2024-04-12 00:00:00" "2024-04-12 04:00:00"
+laview-cli --device office-nvr "2024-04-12 00:00:00" "2024-04-12 04:00:00"
 
 # Download from a configured device (until current time)
-python -m laview_dl.cli --device home-camera "2024-04-12 00:00:00"
+laview-cli --device home-camera "2024-04-12 00:00:00"
 ```
 
 #### Legacy mode - direct IP address
 ```bash
 # Download from default camera (channel 1)
-python -m laview_dl.cli 192.168.1.100 "2024-04-12 00:00:00" "2024-04-12 04:00:00"
+laview-cli 192.168.1.100 "2024-04-12 00:00:00" "2024-04-12 04:00:00"
 
 # Download from specific camera channel
-python -m laview_dl.cli --camera 2 192.168.1.100 "2024-04-12 00:00:00" "2024-04-12 04:00:00"
+laview-cli --camera 2 192.168.1.100 "2024-04-12 00:00:00" "2024-04-12 04:00:00"
 
 # Download with custom credentials
-LAVIEW_NVR_USER=admin LAVIEW_NVR_PASS=qwert123 python -m laview_dl.cli --camera 3 192.168.1.100 "2024-04-12 00:00:00"
+LAVIEW_NVR_USER=admin LAVIEW_NVR_PASS=qwert123 laview-cli --camera 3 192.168.1.100 "2024-04-12 00:00:00"
 ```
 
 #### Download until current time (end time not specified)
 ```bash
-python -m laview_dl.cli --camera 1 192.168.1.100 "2024-04-12 00:00:00"
+laview-cli --camera 1 192.168.1.100 "2024-04-12 00:00:00"
 ```
 
 #### Download for entire day
 ```bash
-python -m laview_dl.cli --camera 1 192.168.1.100 "2024-04-12 00:00:00" "2024-04-12 23:59:59"
+laview-cli --camera 1 192.168.1.100 "2024-04-12 00:00:00" "2024-04-12 23:59:59"
 ```
 
 ## Flexible Date/Time Parsing
@@ -269,19 +269,19 @@ next week, last month, this year
 ### Examples
 ```bash
 # Natural language
-python -m laview_dl.cli --device camera "today 06:00 AM" "now"
-python -m laview_dl.cli --device camera "yesterday 08:00 AM" "today 08:00 AM"
+laview-cli --device camera "today 06:00 AM" "now"
+laview-cli --device camera "yesterday 08:00 AM" "today 08:00 AM"
 
 # Formatted dates
-python -m laview_dl.cli --device camera "August 30, 2025 08:00 AM" "August 31, 2025 08:00 AM"
-python -m laview_dl.cli --device camera "08/30/2025 08:00" "08/31/2025 08:00"
+laview-cli --device camera "August 30, 2025 08:00 AM" "August 31, 2025 08:00 AM"
+laview-cli --device camera "08/30/2025 08:00" "08/31/2025 08:00"
 
 # Combined natural language
-python -m laview_dl.cli --device camera "8 AM yesterday" "6 PM today"
-python -m laview_dl.cli --device camera "yesterday 8 AM" "tomorrow 6 PM"
+laview-cli --device camera "8 AM yesterday" "6 PM today"
+laview-cli --device camera "yesterday 8 AM" "tomorrow 6 PM"
 
 # Mixed formats
-python -m laview_dl.cli --device camera "August 30, 2025 08:00 AM" "tomorrow 06:00 PM"
+laview-cli --device camera "August 30, 2025 08:00 AM" "tomorrow 06:00 PM"
 ```
 
 ## Important Notes
@@ -331,7 +331,7 @@ Enable verbose logging by setting the log level:
 
 ```bash
 export LAVIEW_LOG_LEVEL=DEBUG
-python -m laview_dl.cli [options]
+laview-cli [options]
 ```
 
 ## Supported Devices

@@ -35,29 +35,29 @@ def parse_parameters() -> Optional[Namespace]:
     epilog = """
 Examples:
   # Setup a new device
-  python %(prog)s --setup
+  laview-cli --setup
   
   # List configured devices
-  python %(prog)s --list-devices
+  laview-cli --list-devices
   
   # Remove a device
-  python %(prog)s --remove-device
+  laview-cli --remove-device
   
   # Test device connectivity and authentication
-  python %(prog)s --status --device shop
-  python %(prog)s --status --device office-nvr
+  laview-cli --status --device shop
+  laview-cli --status --device office-nvr
   
   # Use a configured device with flexible date formats
-  python %(prog)s --device office-nvr "August 30, 2025 08:00 AM" "August 31, 2025 08:00 AM"
-  python %(prog)s --device home-camera "today 06:00 AM" "tomorrow 06:00 AM"
-  python %(prog)s --device shop-nvr "yesterday 08:00 AM" "now"
-  python %(prog)s --device camera "8 AM yesterday" "6 PM today"
+  laview-cli --device office-nvr "August 30, 2025 08:00 AM" "August 31, 2025 08:00 AM"
+  laview-cli --device home-camera "today 06:00 AM" "tomorrow 06:00 AM"
+  laview-cli --device shop-nvr "yesterday 08:00 AM" "now"
+  laview-cli --device camera "8 AM yesterday" "6 PM today"
   
   # Use IP address directly (legacy mode)
-  python %(prog)s 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
-  python %(prog)s --camera 2 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
-  python %(prog)s --camera 3 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
-  LAVIEW_USER=admin LAVIEW_PASS=qwert123 python %(prog)s --camera 1 10.145.17.202 "2020-04-15 00:30:00"
+  laview-cli 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
+  laview-cli --camera 2 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
+  laview-cli --camera 3 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
+  LAVIEW_USER=admin LAVIEW_PASS=qwert123 laview-cli --camera 1 10.145.17.202 "2020-04-15 00:30:00"
   
         """
 
