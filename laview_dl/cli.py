@@ -99,6 +99,27 @@ Examples:
         return None
     else:
         args = parser.parse_args()
+        
+        # Fix argument parsing for device mode
+        if args.device:
+            # Extract datetime arguments from sys.argv
+            device_found = False
+            datetime_args = []
+            for arg in sys.argv:
+                if arg == '--device':
+                    device_found = True
+                    continue
+                if device_found and arg != args.device:
+                    datetime_args.append(arg)
+            
+            # Set the datetime arguments correctly
+            if len(datetime_args) >= 1:
+                args.START_DATETIME = datetime_args[0]
+            if len(datetime_args) >= 2:
+                args.END_DATETIME = datetime_args[1]
+            else:
+                args.END_DATETIME = "now"
+        
         return args
 
 
@@ -282,7 +303,7 @@ def main():
         # Check if we have the required arguments
         if not parameters.START_DATETIME:
             print("Error: START_DATETIME is required")
-            print(f"Usage: python -m laview_dl.cli --device {parameters.device} START_DATETIME [END_DATETIME]")
+            print(f"Usage: laview-cli --device {parameters.device} START_DATETIME [END_DATETIME]")
             return
         
         try:
