@@ -101,7 +101,12 @@ class FlexibleDateParser:
         """
         text = text.strip()
         
-        # Try natural language first
+        # Try parsing combined natural language with time first (more specific)
+        combined_natural_result = cls._parse_combined_natural_language(text)
+        if combined_natural_result is not None:
+            return combined_natural_result
+        
+        # Try natural language
         natural_result = cls._parse_natural_language(text)
         if natural_result is not None:
             return natural_result
@@ -117,11 +122,6 @@ class FlexibleDateParser:
         combined_result = cls._try_combine_date_time(text)
         if combined_result is not None:
             return combined_result
-        
-        # Try parsing combined natural language with time
-        combined_natural_result = cls._parse_combined_natural_language(text)
-        if combined_natural_result is not None:
-            return combined_natural_result
         
         raise ValueError(f'Unable to parse datetime: "{text}"')
     
@@ -594,9 +594,16 @@ class FlexibleDateParser:
     @classmethod
     def _parse_time_string(cls, time_str: str) -> Optional[datetime.time]:
         """Parse a time string into a time object."""
+        # Normalize the time string to handle variations in AM/PM formatting
+        normalized_time = time_str.strip()
+        
+        # If it has AM/PM but no space, add a space
+        if re.search(r'\d+:\d+(:\d+)?[ap]m', normalized_time, re.IGNORECASE):
+            normalized_time = re.sub(r'([ap]m)', r' \1', normalized_time, flags=re.IGNORECASE)
+        
         for fmt in cls.TIME_FORMATS:
             try:
-                time_obj = datetime.strptime(time_str, fmt)
+                time_obj = datetime.strptime(normalized_time, fmt)
                 return time_obj.time()
             except ValueError:
                 continue
