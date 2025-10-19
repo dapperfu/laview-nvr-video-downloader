@@ -437,3 +437,105 @@ AttributeError: module 'datetime' has no attribute 'strptime'
 2025-10-03 15:19:12 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_16_57_54.mp4
 2025-10-03 15:19:13 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_16_58_22.mp4
 2025-10-03 15:19:15 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_16_59_44.mp4
+2025-10-03 17:40:32 - INFO - Processing IP 192.168.1.100.
+2025-10-03 17:40:32 - INFO - Processing Camera 1.
+2025-10-03 17:40:32 - INFO - UTC time is used
+2025-10-03 17:40:32 - INFO - Start time: 2025-10-02 15:00:00
+2025-10-03 17:40:32 - INFO - End time: 2025-10-02 16:00:00
+2025-10-03 17:40:32 - INFO - Getting tracks list...
+2025-10-03 17:40:33 - INFO - Found 20 files
+2025-10-03 17:40:33 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_01_25.mp4
+2025-10-03 17:40:35 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_01_55.mp4
+2025-10-03 17:40:36 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_02_25.mp4
+2025-10-03 17:40:39 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_06_38.mp4
+2025-10-03 17:40:42 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_07_31.mp4
+2025-10-03 17:40:43 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_07_51.mp4
+2025-10-03 17:40:45 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_08_22.mp4
+2025-10-03 17:40:47 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_08_56.mp4
+2025-10-03 17:40:50 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_11_01.mp4
+2025-10-03 17:40:52 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_12_28.mp4
+2025-10-03 17:40:54 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_14_39.mp4
+2025-10-03 17:40:56 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_17_34.mp4
+2025-10-03 17:41:42 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_33_51.mp4
+2025-10-03 17:41:50 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_36_51.mp4
+2025-10-03 17:41:53 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_39_09.mp4
+2025-10-03 17:41:57 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_40_36.mp4
+2025-10-03 17:41:59 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_53_46.mp4
+2025-10-03 17:42:04 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_55_24.mp4
+2025-10-03 17:42:06 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_55_47.mp4
+2025-10-03 17:42:10 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_15_59_48.mp4
+2025-10-03 19:39:24 - INFO - Processing IP 192.168.1.100.
+2025-10-03 19:39:24 - INFO - Processing Camera 1.
+2025-10-03 19:39:24 - INFO - UTC time is used
+2025-10-03 19:39:24 - INFO - Start time: 2025-10-02 17:00:00
+2025-10-03 19:39:24 - INFO - End time: 2025-10-02 18:00:00
+2025-10-03 19:39:24 - INFO - Getting tracks list...
+2025-10-03 19:39:24 - INFO - Found 34 files
+2025-10-03 19:39:24 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_00_00.mp4
+2025-10-03 19:39:26 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_01_29.mp4
+2025-10-03 19:39:28 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_07_08.mp4
+2025-10-03 19:39:30 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_07_51.mp4
+2025-10-03 19:39:32 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_08_11.mp4
+2025-10-03 19:39:38 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_08_41.mp4
+2025-10-03 19:39:46 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_10_15.mp4
+2025-10-03 19:39:49 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_10_41.mp4
+2025-10-03 19:39:55 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_11_16.mp4
+2025-10-03 19:40:05 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_12_18.mp4
+2025-10-03 19:40:06 - ERROR - Download failed
+2025-10-03 19:40:06 - ERROR - 'bool' object has no attribute 'status_code'
+Traceback (most recent call last):
+  File "/projects/laview-nvr-video-downloader/laview_dl/work.py", line 57, in work
+    download_videos(tracks, auth_handler, camera_ip, camera_channel)
+  File "/projects/laview-nvr-video-downloader/laview_dl/utils.py", line 26, in download_videos
+    download_tracks(tracks, auth_handler, cam_ip, camera_channel)
+  File "/projects/laview-nvr-video-downloader/laview_dl/logging.py", line 142, in wrapper_func
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/laview-nvr-video-downloader/laview_dl/utils.py", line 40, in download_tracks
+    if download_file_with_retry(auth_handler, cam_ip, track, camera_channel):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/laview-nvr-video-downloader/laview_dl/utils.py", line 62, in download_file_with_retry
+    if answer.status_code == CameraSdk.DEVICE_ERROR_CODE:
+       ^^^^^^^^^^^^^^^^^^
+AttributeError: 'bool' object has no attribute 'status_code'
+2025-10-03 20:21:22 - INFO - Processing IP 192.168.1.100.
+2025-10-03 20:21:22 - INFO - Processing Camera 1.
+2025-10-03 20:21:22 - INFO - UTC time is used
+2025-10-03 20:21:22 - INFO - Start time: 2025-10-02 17:00:00
+2025-10-03 20:21:22 - INFO - End time: 2025-10-02 18:00:00
+2025-10-03 20:21:22 - INFO - Getting tracks list...
+2025-10-03 20:21:22 - INFO - Found 34 files
+2025-10-03 20:21:22 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_00_00.mp4
+2025-10-03 20:21:25 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_01_29.mp4
+2025-10-03 20:21:27 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_07_08.mp4
+2025-10-03 20:21:29 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_07_51.mp4
+2025-10-03 20:21:30 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_08_11.mp4
+2025-10-03 20:21:32 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_08_41.mp4
+2025-10-03 20:21:35 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_10_15.mp4
+2025-10-03 20:21:36 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_10_41.mp4
+2025-10-03 20:21:39 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_11_16.mp4
+2025-10-03 20:21:41 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_12_18.mp4
+2025-10-03 20:21:46 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_13_52.mp4
+2025-10-03 20:21:53 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_16_47.mp4
+2025-10-03 20:21:56 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_17_54.mp4
+2025-10-03 20:22:21 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_28_23.mp4
+2025-10-03 20:22:22 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_28_47.mp4
+2025-10-03 20:22:25 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_29_36.mp4
+2025-10-03 20:22:28 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_30_47.mp4
+2025-10-03 20:22:31 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_32_22.mp4
+2025-10-03 20:22:34 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_35_13.mp4
+2025-10-03 20:22:36 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_36_07.mp4
+2025-10-03 20:22:41 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_38_55.mp4
+2025-10-03 20:22:42 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_39_12.mp4
+2025-10-03 20:22:44 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_39_48.mp4
+2025-10-03 20:22:47 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_42_01.mp4
+2025-10-03 20:22:49 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_42_56.mp4
+2025-10-03 20:22:53 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_44_04.mp4
+2025-10-03 20:22:54 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_45_20.mp4
+2025-10-03 20:22:56 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_46_23.mp4
+2025-10-03 20:22:59 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_47_09.mp4
+2025-10-03 20:23:02 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_48_19.mp4
+2025-10-03 20:23:05 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_49_33.mp4
+2025-10-03 20:23:07 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_51_21.mp4
+2025-10-03 20:23:08 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_54_16.mp4
+2025-10-03 20:23:11 - INFO - Downloading video/192.168.1.100/camera1/2025-10-02_17_56_32.mp4

@@ -220,7 +220,7 @@ laview-cli 192.168.1.100 "2024-04-12 00:00:00" "2024-04-12 04:00:00"
 laview-cli --camera 2 192.168.1.100 "2024-04-12 00:00:00" "2024-04-12 04:00:00"
 
 # Download with custom credentials
-LAVIEW_NVR_USER=admin LAVIEW_NVR_PASS=qwert123 laview-cli --camera 3 192.168.1.100 "2024-04-12 00:00:00"
+LAVIEW_NVR_USER=admin LAVIEW_NVR_PASS=dummy_password123 laview-cli --camera 3 192.168.1.100 "2024-04-12 00:00:00"
 ```
 
 #### Download until current time (end time not specified)

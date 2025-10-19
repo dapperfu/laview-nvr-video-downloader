@@ -8,3 +8,8 @@ venv/
 .venv/
 env/
 .env/
+
+# Python packaging
+*.egg-info/
+build/
+dist/
