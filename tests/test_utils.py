@@ -3,8 +3,8 @@ from datetime import datetime
 
 
 class TestUtils:
-    tz_format = '%Y-%m-%dT%H:%M:%SZ'
-    common_format = '%Y-%m-%d %H:%M:%S'
+    tz_format = "%Y-%m-%dT%H:%M:%SZ"
+    common_format = "%Y-%m-%d %H:%M:%S"
 
     @classmethod
     def time_from_text(cls, text):
@@ -21,7 +21,7 @@ class TestUtils:
 
 class TestTestUtils(unittest.TestCase):
     def test_time_converting_methods(self):
-        expected_time_text = '2020-02-12 17:05:21'
+        expected_time_text = "2020-02-12 17:05:21"
         expected_time = datetime.strptime(expected_time_text, TestUtils.common_format)
 
         actual_time = TestUtils.time_from_text(expected_time_text)
@@ -35,5 +35,5 @@ class TestTestUtils(unittest.TestCase):
         self.assertEqual(expected_time_tz_text, actual_time_tz_text)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

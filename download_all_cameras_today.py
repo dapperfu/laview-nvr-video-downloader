@@ -8,7 +8,7 @@ range on the current day.
 
 import os
 import sys
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
 from laview_dl.authtype import AuthType
 from laview_dl.camerasdk import CameraSdk, init
@@ -17,7 +17,7 @@ from laview_dl.work import work
 
 
 def get_all_cameras(
-    auth_handler: Any, camera_ip: str, max_channels: int = 10
+    auth_handler: Any, camera_ip: str, max_channels: int = 10,
 ) -> List[Dict[str, Any]]:
     """
     Get all available cameras from the NVR.
@@ -52,7 +52,7 @@ def get_all_cameras(
 
     # Fallback to detection method
     camera_list = CameraSdk.detect_available_cameras(
-        auth_handler, camera_ip, max_channels
+        auth_handler, camera_ip, max_channels,
     )
     if camera_list:
         return camera_list
@@ -103,7 +103,7 @@ def download_from_all_cameras(
         if not devices:
             raise RuntimeError(
                 "No devices configured. Run 'python -m laview_dl.cli --setup' "
-                "to configure a device."
+                "to configure a device.",
             )
         device_name = devices[0]
         print(f"No device specified, using first configured device: {device_name}")
@@ -112,7 +112,7 @@ def download_from_all_cameras(
     if not device_config:
         raise RuntimeError(
             f"Device '{device_name}' not found. "
-            "Run 'python -m laview_dl.cli --setup' to configure a device."
+            "Run 'python -m laview_dl.cli --setup' to configure a device.",
         )
 
     camera_ip = device_config["ip_address"]
@@ -135,7 +135,7 @@ def download_from_all_cameras(
         raise RuntimeError(
             "Username and password not found. Set credentials in device "
             "config or environment variables: LAVIEW_NVR_USER and "
-            "LAVIEW_NVR_PASS"
+            "LAVIEW_NVR_PASS",
         )
 
     # Authenticate
@@ -152,7 +152,7 @@ def download_from_all_cameras(
     if not cameras:
         raise RuntimeError(
             f"No cameras detected on {camera_ip}. "
-            "Please check the device connection and configuration."
+            "Please check the device connection and configuration.",
         )
 
     print(f"Found {len(cameras)} camera(s):")
@@ -208,7 +208,7 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Download video from all cameras between 3:30 PM and 5:00 PM today"
+        description="Download video from all cameras between 3:30 PM and 5:00 PM today",
     )
     parser.add_argument(
         "--device",
@@ -250,3 +250,4 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 
+s

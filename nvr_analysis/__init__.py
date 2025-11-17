@@ -10,12 +10,12 @@ __version__ = "0.1.0"
 __author__ = "Your Name"
 __email__ = "your.email@example.com"
 
-from .video_analyzer import VideoAnalyzer
-from .timestamp_extractor import TimestampExtractor
 from .metadata_extractor import MetadataExtractor
+from .timestamp_extractor import TimestampExtractor
+from .video_analyzer import VideoAnalyzer
 
 __all__ = [
     "VideoAnalyzer",
-    "TimestampExtractor", 
+    "TimestampExtractor",
     "MetadataExtractor",
 ]

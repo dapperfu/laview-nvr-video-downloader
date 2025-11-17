@@ -3,8 +3,7 @@ import subprocess
 import time
 from datetime import datetime
 
-from .logging import logging_wrapper
-from .logging import LogPrinter
+from .logging import LogPrinter, logging_wrapper
 
 write_logs = True
 
@@ -105,19 +104,18 @@ def download_tracks(tracks, auth_handler, cam_ip, camera_channel=1):
         while True:
             if download_file_with_retry(auth_handler, cam_ip, track, camera_channel):
                 break
-            else:
-                time.sleep(DELAY_AFTER_TIMEOUT_SECONDS)
+            time.sleep(DELAY_AFTER_TIMEOUT_SECONDS)
 
         time.sleep(DELAY_BETWEEN_DOWNLOADING_FILES_SECONDS)
 
 
 def download_file_with_retry(auth_handler, cam_ip, track, camera_channel=1):
     from .camerasdk import CameraSdk
-    
+
     time_interval = track.get_time_interval().to_local_time()
     start_time_text = time_interval.to_filename_text()
     file_name = os.path.join(
-        get_path_to_video_archive(cam_ip, camera_channel), start_time_text + video_file_extension
+        get_path_to_video_archive(cam_ip, camera_channel), start_time_text + video_file_extension,
     )
     url_to_download = track.url_to_download()
 
@@ -127,15 +125,14 @@ def download_file_with_retry(auth_handler, cam_ip, track, camera_channel=1):
         # Set Exif metadata using the start time of the video
         set_video_exif_metadata(file_name, time_interval.start_time)
         return True
-    else:
-        if answer.status_code == CameraSdk.DEVICE_ERROR_CODE:
-            reboot_camera(auth_handler, cam_ip)
-            wait_until_camera_rebooted(cam_ip)
-        return False
+    if answer.status_code == CameraSdk.DEVICE_ERROR_CODE:
+        reboot_camera(auth_handler, cam_ip)
+        wait_until_camera_rebooted(cam_ip)
+    return False
 
 
 @logging_wrapper(
-    before=LogPrinter.download_file_before, after=LogPrinter.download_file_after
+    before=LogPrinter.download_file_before, after=LogPrinter.download_file_after,
 )
 def download_file(auth_handler, cam_ip, url_to_download, file_name):
     from .camerasdk import CameraSdk
@@ -152,5 +149,5 @@ def reboot_camera(auth_handler, cam_ip):
 def wait_until_camera_rebooted(cam_ip):
     from .camerasdk import CameraSdk
     CameraSdk.wait_until_camera_rebooted(
-        cam_ip, CAMERA_REBOOT_TIME_SECONDS, DELAY_BEFORE_CHECKING_AVAILABILITY_SECONDS
+        cam_ip, CAMERA_REBOOT_TIME_SECONDS, DELAY_BEFORE_CHECKING_AVAILABILITY_SECONDS,
     )

@@ -34,7 +34,7 @@ class Track:
                     self._size = param_value
 
         self._time_interval = TimeInterval.from_string(
-            start_time_text, end_time_text, local_time_offset
+            start_time_text, end_time_text, local_time_offset,
         )
 
     @staticmethod

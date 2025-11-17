@@ -1,4 +1,3 @@
-import os
 import re
 import shutil
 import socket
@@ -6,20 +5,20 @@ import time
 import uuid
 from datetime import timedelta
 from xml.etree import ElementTree
-from xml.etree.ElementTree import Element
-from xml.etree.ElementTree import SubElement
+from xml.etree.ElementTree import Element, SubElement
 
 import requests
-from requests.auth import HTTPBasicAuth
-from requests.auth import HTTPDigestAuth
+from requests.auth import HTTPBasicAuth, HTTPDigestAuth
 
 from .authtype import AuthType
-from .logging import Logger, logging_wrapper, LogPrinter
+from .logging import Logger, LogPrinter, logging_wrapper
 from .track import Track
-from .utils import create_directory_for
-from .utils import DEFAULT_TIMEOUT_SECONDS
-from .utils import get_path_to_video_archive
-from .utils import MAX_VIDEOS_NUMBER_IN_ONE_REQUEST
+from .utils import (
+    DEFAULT_TIMEOUT_SECONDS,
+    MAX_VIDEOS_NUMBER_IN_ONE_REQUEST,
+    create_directory_for,
+    get_path_to_video_archive,
+)
 
 MAX_BYTES_LOG_FILE_SIZE = 100000
 MAX_LOG_FILES_COUNT = 20
@@ -59,9 +58,7 @@ class CameraSdk:
         if answer_status_element is not None and answer_substatus_element is not None:
             status = answer_status_element.text
             substatus = answer_substatus_element.text
-            message = "Error {} {}: {} - {}".format(
-                answer.status_code, answer.reason, status, substatus
-            )
+            message = f"Error {answer.status_code} {answer.reason}: {status} - {substatus}"
         else:
             message = answer_text
 
@@ -101,37 +98,36 @@ class CameraSdk:
             timezone_raw = time_info_xml.find("timeZone")
             time_offset = cls.parse_timezone(timezone_raw.text)
             return time_offset
-        else:
-            raise RuntimeError(cls.get_error_message_from(answer))
+        raise RuntimeError(cls.get_error_message_from(answer))
 
     @staticmethod
     def parse_timezone(raw_timezone):
         try:
             # Handle complex timezone format like "CST+5:00:00DST01:00:00,M3.2.1/02:00:00,M11.1.1/00:00:00"
             # Extract the base offset and DST offset
-            
+
             # Remove timezone name (CST, EST, etc.)
             timezone_text = raw_timezone
             for tz_name in ["CST", "EST", "PST", "MST", "GMT", "UTC"]:
                 timezone_text = timezone_text.replace(tz_name, "")
-            
+
             # Look for the base offset (e.g., +5:00:00)
             import re
-            base_offset_match = re.search(r'([+-]\d+):(\d+):(\d+)', timezone_text)
+            base_offset_match = re.search(r"([+-]\d+):(\d+):(\d+)", timezone_text)
             if not base_offset_match:
                 return timedelta(0)
-            
+
             hours = int(base_offset_match.group(1))
             minutes = int(base_offset_match.group(2))
             seconds = int(base_offset_match.group(3))
-            
+
             # Look for DST offset (e.g., DST01:00:00)
-            dst_offset_match = re.search(r'DST(\d+):(\d+):(\d+)', timezone_text)
+            dst_offset_match = re.search(r"DST(\d+):(\d+):(\d+)", timezone_text)
             if dst_offset_match:
                 dst_hours = int(dst_offset_match.group(1))
                 dst_minutes = int(dst_offset_match.group(2))
                 dst_seconds = int(dst_offset_match.group(3))
-                
+
                 # Add DST offset to base offset
                 total_hours = hours + dst_hours
                 total_minutes = minutes + dst_minutes
@@ -140,10 +136,10 @@ class CameraSdk:
                 total_hours = hours
                 total_minutes = minutes
                 total_seconds = seconds
-            
+
             # Create timedelta (negative because we want UTC offset)
             return -timedelta(hours=total_hours, minutes=total_minutes, seconds=total_seconds)
-            
+
         except (ValueError, IndexError, AttributeError):
             # Handle unexpected timezone formats gracefully
             return timedelta(0)  # Return zero offset for unknown formats
@@ -156,7 +152,7 @@ class CameraSdk:
             if answer and answer.ok:
                 device_info_text = cls.__clear_xml_from_namespaces(answer.text)
                 device_info_xml = ElementTree.fromstring(device_info_text)
-                
+
                 # Extract device information
                 device_name = device_info_xml.find("deviceName")
                 device_id = device_info_xml.find("deviceID")
@@ -165,7 +161,7 @@ class CameraSdk:
                 mac_address = device_info_xml.find("macAddress")
                 firmware_version = device_info_xml.find("firmwareVersion")
                 firmware_released_date = device_info_xml.find("firmwareReleasedDate")
-                
+
                 return {
                     "deviceName": device_name.text if device_name is not None else "Unknown",
                     "deviceID": device_id.text if device_id is not None else "Unknown",
@@ -173,10 +169,9 @@ class CameraSdk:
                     "serialNumber": serial_number.text if serial_number is not None else "Unknown",
                     "macAddress": mac_address.text if mac_address is not None else "Unknown",
                     "firmwareVersion": firmware_version.text if firmware_version is not None else "Unknown",
-                    "firmwareReleasedDate": firmware_released_date.text if firmware_released_date is not None else "Unknown"
+                    "firmwareReleasedDate": firmware_released_date.text if firmware_released_date is not None else "Unknown",
                 }
-            else:
-                return None
+            return None
         except Exception:
             return None
 
@@ -187,19 +182,19 @@ class CameraSdk:
         endpoints = [
             cls.__CAMERA_INFO_URL,
             cls.__CAMERA_INFO_URL_ALT,
-            cls.__CAMERA_INFO_URL_ALT2
+            cls.__CAMERA_INFO_URL_ALT2,
         ]
-        
+
         for endpoint in endpoints:
             try:
                 answer = cls.__make_get_request(auth_handler, cam_ip, endpoint)
                 if answer and answer.ok:
                     camera_info_text = cls.__clear_xml_from_namespaces(answer.text)
                     camera_info_xml = ElementTree.fromstring(camera_info_text)
-                    
+
                     # Try different XML structures
                     channels = []
-                    
+
                     # Try videoInputChannel elements
                     channels = camera_info_xml.findall(".//videoInputChannel")
                     if not channels:
@@ -208,104 +203,103 @@ class CameraSdk:
                     if not channels:
                         # Try input elements
                         channels = camera_info_xml.findall(".//input")
-                    
+
                     camera_list = []
-                    
+
                     for channel in channels:
                         channel_id = channel.find("id")
                         if channel_id is None:
                             channel_id = channel.find("channelID")
                         if channel_id is None:
                             channel_id = channel.find("inputID")
-                            
+
                         name = channel.find("name")
                         if name is None:
                             name = channel.find("channelName")
                         if name is None:
                             name = channel.find("inputName")
-                            
+
                         enabled = channel.find("enabled")
                         if enabled is None:
                             enabled = channel.find("status")
-                        
+
                         if channel_id is not None:
                             camera_info = {
                                 "id": int(channel_id.text),
                                 "name": name.text if name is not None else f"Camera {channel_id.text}",
-                                "enabled": enabled.text.lower() == "true" if enabled is not None else True
+                                "enabled": enabled.text.lower() == "true" if enabled is not None else True,
                             }
                             camera_list.append(camera_info)
-                    
+
                     if camera_list:
                         return camera_list
-                        
+
             except Exception:
                 continue
-        
+
         return None
 
     @classmethod
     def detect_available_cameras(cls, auth_handler, cam_ip, max_channels=10):
         """Detect available cameras by testing video search on different channels."""
         available_cameras = []
-        
+
         # Test channels 0-9 (0 is usually the grid view, 1-9 are individual cameras)
         # Start with channel 0 to check for grid view
         for channel in range(max_channels):
             try:
                 # Create a simple search request for this channel
                 search_request = Element("CMSearchDescription")
-                
+
                 # Add searchID
                 search_id = SubElement(search_request, "searchID")
                 search_id.text = str(uuid.uuid4())
-                
+
                 # Add trackIDList
                 track_id_list = SubElement(search_request, "trackIDList")
                 track_id = SubElement(track_id_list, "trackID")
                 track_id.text = f"{channel:02d}01"  # Format as 2-digit number + "01"
-                
+
                 # Add timeSpanList for a recent time period
                 time_span_list = SubElement(search_request, "timeSpanList")
                 time_span = SubElement(time_span_list, "timeSpan")
-                
+
                 # Search for the last hour
                 from datetime import datetime, timedelta
                 now = datetime.utcnow()
                 one_hour_ago = now - timedelta(hours=1)
-                
+
                 start_time = SubElement(time_span, "startTime")
                 start_time.text = one_hour_ago.strftime("%Y-%m-%dT%H:%M:%SZ")
-                
+
                 end_time = SubElement(time_span, "endTime")
                 end_time.text = now.strftime("%Y-%m-%dT%H:%M:%SZ")
-                
+
                 request_data = ElementTree.tostring(search_request, encoding="utf8", method="xml")
-                
+
                 answer = cls.__make_post_request(auth_handler, cam_ip, cls.__SEARCH_VIDEO_URL, request_data)
-                
+
                 if answer and answer.ok:
                     # If we get a successful response, this channel exists
                     camera_info = {
                         "id": channel,
                         "name": f"Camera {channel}" if channel > 0 else "Grid View",
-                        "enabled": True
+                        "enabled": True,
                     }
                     available_cameras.append(camera_info)
-                    
+
             except Exception:
                 continue
-        
+
         return available_cameras if available_cameras else None
 
     @staticmethod
     def get_auth(auth_type, name, password):
         if auth_type == AuthType.BASIC:
             return HTTPBasicAuth(name, password)
-        elif auth_type == AuthType.DIGEST:
+        if auth_type == AuthType.DIGEST:
             return HTTPDigestAuth(name, password)
-        else:
-            return None
+        return None
 
     @classmethod
     def download_file(cls, auth_handler, cam_ip, file_uri, file_name):
@@ -316,7 +310,7 @@ class CameraSdk:
         playback_uri.text = file_uri
 
         request_data = ElementTree.tostring(
-            download_request, encoding="utf8", method="xml"
+            download_request, encoding="utf8", method="xml",
         )
 
         url = cls.__get_service_url(cam_ip, cls.__DOWNLOAD_VIDEO_URL)
@@ -333,8 +327,7 @@ class CameraSdk:
                     shutil.copyfileobj(answer.raw, out_file)
                 answer.close()
                 return True
-            else:
-                return False
+            return False
 
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
             return False
@@ -397,7 +390,7 @@ class CameraSdk:
 
         # Add searchResultPosition
         search_result_position = SubElement(
-            cm_search_description, "searchResultPostion"
+            cm_search_description, "searchResultPostion",
         )
         search_result_position.text = "0"
 
@@ -407,10 +400,10 @@ class CameraSdk:
         metadata_descriptor.text = "//recordType.meta.std-cgi.com"
 
         request_data = ElementTree.tostring(
-            cm_search_description, encoding="utf8", method="xml"
+            cm_search_description, encoding="utf8", method="xml",
         )
         answer = cls.__make_post_request(
-            auth_handler, cam_ip, cls.__SEARCH_VIDEO_URL, request_data
+            auth_handler, cam_ip, cls.__SEARCH_VIDEO_URL, request_data,
         )
 
         return answer
@@ -424,7 +417,7 @@ class CameraSdk:
         if match_list is None:
             # No videos found in the specified time range
             return []
-            
+
         match_items = match_list.findall("searchMatchItem")
 
         tracks = []
@@ -488,7 +481,7 @@ def init(cam_ip, camera_channel=1, verbose_level=0):
     create_directory_for(get_path_to_video_archive(cam_ip, camera_channel))
 
     Logger.init_logger(
-        write_logs, path_to_log_file, MAX_BYTES_LOG_FILE_SIZE, MAX_LOG_FILES_COUNT, verbose_level
+        write_logs, path_to_log_file, MAX_BYTES_LOG_FILE_SIZE, MAX_LOG_FILES_COUNT, verbose_level,
     )
 
     CameraSdk.init(DEFAULT_TIMEOUT_SECONDS)
@@ -517,5 +510,5 @@ def get_all_tracks(auth_handler, cam_ip, utc_time_interval, camera_channel=1):
 @logging_wrapper(after=LogPrinter.get_video_tracks_info)
 def get_video_tracks_info(auth_handler, cam_ip, utc_time_interval, camera_channel=1):
     return CameraSdk.get_video_tracks_info(
-        auth_handler, cam_ip, utc_time_interval, MAX_VIDEOS_NUMBER_IN_ONE_REQUEST, camera_channel
+        auth_handler, cam_ip, utc_time_interval, MAX_VIDEOS_NUMBER_IN_ONE_REQUEST, camera_channel,
     )

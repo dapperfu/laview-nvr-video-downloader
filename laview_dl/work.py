@@ -4,9 +4,8 @@ from datetime import timedelta
 import requests
 
 from .authtype import AuthType
-from .camerasdk import CameraSdk
+from .camerasdk import CameraSdk, get_all_tracks
 from .logging import Logger
-from .camerasdk import get_all_tracks
 from .time_interval import TimeInterval
 from .utils import download_videos
 
@@ -17,7 +16,7 @@ def work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time, camera_c
         logger.info(f"Processing IP {camera_ip}.")
         logger.info(f"Processing Camera {camera_channel}.")
         logger.info(
-            "{} time is used".format("UTC" if use_utc_time else "Camera's local")
+            "{} time is used".format("UTC" if use_utc_time else "Camera's local"),
         )
 
         # Add debug logging at different levels
@@ -42,13 +41,13 @@ def work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time, camera_c
         if use_utc_time:
             local_time_offset = timedelta()
         else:
-            logger.clue(f"🕐 Getting time offset from camera...")
+            logger.clue("🕐 Getting time offset from camera...")
             local_time_offset = CameraSdk.get_time_offset(auth_handler, camera_ip)
 
         logger.trace(f"⏰ Local time offset: {local_time_offset}")
 
         utc_time_interval = TimeInterval.from_string(
-            start_datetime_str, end_datetime_str, local_time_offset
+            start_datetime_str, end_datetime_str, local_time_offset,
         ).to_utc()
 
         logger.banter(f"📅 Converted time interval to UTC: {utc_time_interval}")
@@ -57,7 +56,7 @@ def work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time, camera_c
         download_videos(tracks, auth_handler, camera_ip, camera_channel)
 
     except requests.exceptions.ConnectionError as e:
-        logger.error("Connection error: {}".format(e))
+        logger.error(f"Connection error: {e}")
 
     except Exception as e:
         logger.exception(e)

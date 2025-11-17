@@ -3,7 +3,7 @@ import logging.handlers
 # Custom logging levels between INFO (20) and DEBUG (10)
 # Each level is 2 points apart, giving us 9 levels total
 VERBOSE_9 = 19  # "GOSSIP" - Very high-level chatter
-VERBOSE_8 = 17  # "CHATTER" - High-level system chatter  
+VERBOSE_8 = 17  # "CHATTER" - High-level system chatter
 VERBOSE_7 = 15  # "BANTER" - Friendly system communication
 VERBOSE_6 = 13  # "TALK" - General system talking
 VERBOSE_5 = 11  # "WHISPER" - Quiet system details
@@ -14,7 +14,7 @@ VERBOSE_1 = 3   # "TRACE" - System trace information
 
 # Register custom levels
 logging.addLevelName(VERBOSE_9, "GOSSIP")
-logging.addLevelName(VERBOSE_8, "CHATTER") 
+logging.addLevelName(VERBOSE_8, "CHATTER")
 logging.addLevelName(VERBOSE_7, "BANTER")
 logging.addLevelName(VERBOSE_6, "TALK")
 logging.addLevelName(VERBOSE_5, "WHISPER")
@@ -77,10 +77,10 @@ class Logger:
 
     @staticmethod
     def init_logger(
-        write_logs, path_to_log_file, max_bytes_log_size, max_log_files_count, verbose_level=0
+        write_logs, path_to_log_file, max_bytes_log_size, max_log_files_count, verbose_level=0,
     ):
         logger = Logger.get_logger()
-        
+
         # Set log level based on verbose level
         if verbose_level == 0:
             log_level = logging.INFO
@@ -96,11 +96,11 @@ class Logger:
             log_level = VERBOSE_1  # TRACE
         else:
             log_level = logging.DEBUG  # Full debug for -vvvvv and beyond
-        
+
         logger.setLevel(log_level)
 
         console_formatter = logging.Formatter(
-            fmt="%(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            fmt="%(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S",
         )
 
         console_handler = logging.StreamHandler()
@@ -135,7 +135,7 @@ def logging_wrapper(before=None, after=None, level=logging.INFO):
     def log_decorator(func):
         def wrapper_func(*args, **kwargs):
             logger = Logger.get_logger()
-            
+
             if before is not None and logger.isEnabledFor(level):
                 before(*args, **kwargs)
 
@@ -161,8 +161,8 @@ class LogPrinter:
     def get_all_tracks(_1, _2, utc_time_interval, _3=None):
         start_time_text, end_time_text = utc_time_interval.to_local_time().to_text()
 
-        Logger.get_logger().info("Start time: {}".format(start_time_text))
-        Logger.get_logger().info("End time: {}".format(end_time_text))
+        Logger.get_logger().info(f"Start time: {start_time_text}")
+        Logger.get_logger().info(f"End time: {end_time_text}")
         Logger.get_logger().info("Getting tracks list...")
 
     @staticmethod
@@ -178,11 +178,11 @@ class LogPrinter:
 
     @staticmethod
     def download_tracks(tracks, _1, _2, _3=None):
-        Logger.get_logger().info("Found {} files".format(len(tracks)))
+        Logger.get_logger().info(f"Found {len(tracks)} files")
 
     @staticmethod
     def download_file_before(_1, _2, _3, file_name):
-        Logger.get_logger().info("Downloading {}".format(file_name))
+        Logger.get_logger().info(f"Downloading {file_name}")
 
 
 
