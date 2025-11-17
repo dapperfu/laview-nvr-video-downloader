@@ -66,6 +66,8 @@ include = ["nvr_analysis*"]
 [tool.ruff]
 target-version = "py38"
 line-length = 88
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -114,7 +116,7 @@ ignore = [
     "PLR2004", # magic value used in comparison
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/**/*" = ["PLR2004", "PLR0913", "PLR0912", "PLR0915", "PLR0911"]
 
