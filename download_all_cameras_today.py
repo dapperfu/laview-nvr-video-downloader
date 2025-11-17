@@ -8,7 +8,6 @@ range on the current day.
 
 import os
 import sys
-from datetime import datetime
 from typing import Optional, List, Dict, Any
 
 from laview_dl.authtype import AuthType
@@ -160,12 +159,17 @@ def download_from_all_cameras(
     for camera in cameras:
         print(f"  - Camera {camera['id']}: {camera['name']}")
 
-    # Build datetime strings for today
-    today = datetime.now().strftime("%Y-%m-%d")
-    start_datetime_str = f"{today} {start_time}"
-    end_datetime_str = f"{today} {end_time}"
+    # Build datetime strings (using natural language parsing from date_parser)
+    start_datetime_str = f"{start_time}"
+    end_datetime_str = f"{end_time}"
 
     print(f"\nDownloading video from {start_datetime_str} to {end_datetime_str}")
+
+    # Initialize logger once before processing all cameras
+    # (log file is based on IP, not camera ID, so we only need to init once)
+    # Use the first camera's ID for directory creation
+    first_camera_id = cameras[0]["id"] if cameras else 1
+    init(camera_ip, first_camera_id, verbose_level=0)
 
     # Download from each camera
     for camera in cameras:
@@ -181,10 +185,7 @@ def download_from_all_cameras(
         print(f"{'=' * 60}")
 
         try:
-            # Initialize logger for this camera
-            init(camera_ip, camera_id, verbose_level=0)
-
-            # Download video
+            # Download video (logger already initialized above)
             work(camera_ip, start_datetime_str, end_datetime_str, True, camera_id)
 
             print(f"✓ Successfully downloaded video from Camera {camera_id}")
@@ -217,13 +218,13 @@ def main() -> None:
     parser.add_argument(
         "--start-time",
         type=str,
-        default="3:30 PM",
+        default="yesterday 3:30 PM",
         help='Start time in natural language format (default: "3:30 PM")',
     )
     parser.add_argument(
         "--end-time",
         type=str,
-        default="5:00 PM",
+        default="yesterday 5:00 PM",
         help='End time in natural language format (default: "5:00 PM")',
     )
 
