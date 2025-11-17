@@ -1,5 +1,7 @@
 import os
+import subprocess
 import time
+from datetime import datetime
 
 from .logging import logging_wrapper
 from .logging import LogPrinter
@@ -32,6 +34,70 @@ def create_directory_for(file_path):
         os.makedirs(directory)
 
 
+def set_video_exif_metadata(file_path: str, start_datetime: datetime) -> bool:
+    """
+    Set Exif metadata tags for a video file using exiftool.
+
+    Parameters
+    ----------
+    file_path : str
+        Path to the video file.
+    start_datetime : datetime
+        Datetime object representing the start time of the video.
+
+    Returns
+    -------
+    bool
+        True if exiftool successfully set the metadata, False otherwise.
+
+    Notes
+    -----
+    Sets the following Exif tags to the start date/time:
+    - CreateDate
+    - ModifyDate
+    - TrackCreateDate
+    - TrackModifyDate
+    - MediaCreateDate
+    - MediaModifyDate
+
+    The datetime is formatted as "YYYY:MM:DD HH:MM:SS" for exiftool.
+    """
+    if not os.path.exists(file_path):
+        return False
+
+    # Format datetime for exiftool: "YYYY:MM:DD HH:MM:SS"
+    date_str = start_datetime.strftime("%Y:%m:%d %H:%M:%S")
+
+    try:
+        # Use exiftool to set all date/time tags
+        subprocess.run(
+            [
+                "exiftool",
+                "-overwrite_original",
+                f"-CreateDate={date_str}",
+                f"-ModifyDate={date_str}",
+                f"-TrackCreateDate={date_str}",
+                f"-TrackModifyDate={date_str}",
+                f"-MediaCreateDate={date_str}",
+                f"-MediaModifyDate={date_str}",
+                file_path,
+            ],
+            check=True,
+            capture_output=True,
+            timeout=30,
+        )
+        return True
+    except subprocess.CalledProcessError:
+        # exiftool failed, but don't fail the download
+        return False
+    except FileNotFoundError:
+        # exiftool not installed, silently skip
+        return False
+    except subprocess.TimeoutExpired:
+        # exiftool timed out, but don't fail the download
+        return False
+
+
 @logging_wrapper(before=LogPrinter.download_tracks)
 def download_tracks(tracks, auth_handler, cam_ip, camera_channel=1):
     for track in tracks:
@@ -48,7 +114,8 @@ def download_tracks(tracks, auth_handler, cam_ip, camera_channel=1):
 def download_file_with_retry(auth_handler, cam_ip, track, camera_channel=1):
     from .camerasdk import CameraSdk
     
-    start_time_text = track.get_time_interval().to_local_time().to_filename_text()
+    time_interval = track.get_time_interval().to_local_time()
+    start_time_text = time_interval.to_filename_text()
     file_name = os.path.join(
         get_path_to_video_archive(cam_ip, camera_channel), start_time_text + video_file_extension
     )
@@ -57,6 +124,8 @@ def download_file_with_retry(auth_handler, cam_ip, track, camera_channel=1):
     create_directory_for(file_name)
     answer = download_file(auth_handler, cam_ip, url_to_download, file_name)
     if answer:
+        # Set Exif metadata using the start time of the video
+        set_video_exif_metadata(file_name, time_interval.start_time)
         return True
     else:
         if answer.status_code == CameraSdk.DEVICE_ERROR_CODE:
