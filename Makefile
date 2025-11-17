@@ -3,7 +3,8 @@
 
 # Variables
 PYTHON_VERSION := 3.12
-VENV_NAME := venv
+PROJECT_NAME := $(shell basename $(CURDIR))
+VENV_NAME := venv_${PROJECT_NAME}
 PYTHON := ${VENV_NAME}/bin/python
 PIP := ${VENV_NAME}/bin/pip
 UV := ${VENV_NAME}/bin/uv
@@ -25,7 +26,6 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' ${MAKEFILE_LIST} | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # Virtual environment management
-.PHONY: venv
 venv: ${VENV_NAME} ## Create virtual environment
 
 ${VENV_NAME}: ## Create virtual environment if it doesn't exist
@@ -44,14 +44,14 @@ deps: ${VENV_NAME} ## Install production dependencies
 
 # Install all dependencies
 .PHONY: install
-install: ${VENV_NAME} ## Install all dependencies
+install: ${VENV_NAME} ## Install all dependencies and the project
 	${UV} pip install --python ${PYTHON} -r requirements.txt
 	${UV} pip install --python ${PYTHON} ruff black mypy pytest pytest-cov pre-commit build
+	${UV} pip install --python ${PYTHON} -e .
 
 # Install package in development mode
 .PHONY: install-dev
-install-dev: install ## Install package in development mode
-	${UV} pip install --python ${PYTHON} -e .
+install-dev: install ## Install package in development mode (alias for install)
 
 # Install package system-wide using pipx
 .PHONY: pipx
@@ -125,10 +125,11 @@ build: ${VENV_NAME} ## Build package
 	${PYTHON} -m build
 
 .PHONY: clean
-clean: ## Clean build artifacts
+clean: ## Clean build artifacts and virtual environment
 	rm -rf ${DIST_DIR} ${BUILD_DIR} *.egg-info
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
+	rm -rf ${VENV_NAME}
 
 .PHONY: uninstall
 uninstall: ${VENV_NAME} ## Uninstall package
