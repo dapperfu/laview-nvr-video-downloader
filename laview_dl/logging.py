@@ -177,7 +177,7 @@ class LogPrinter:
             Logger.get_logger().error("Download failed")
 
     @staticmethod
-    def download_tracks(tracks, _1, _2, _3=None):
+    def download_tracks(tracks, _1, _2, _3=None, **kwargs):
         Logger.get_logger().info(f"Found {len(tracks)} files")
 
     @staticmethod

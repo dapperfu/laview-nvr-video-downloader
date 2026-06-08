@@ -1,8 +1,10 @@
 import argparse
+import os
 import sys
 from argparse import Namespace
-from typing import Optional
+from typing import Any, List, Optional, Tuple
 
+from .authtype import AuthType
 from .camerasdk import CameraSdk
 from .config import (
     ConfigManager,
@@ -12,6 +14,198 @@ from .config import (
 )
 from .date_parser import FlexibleDateParser
 from .work import work
+
+
+def parse_camera_channels(camera_arg: str) -> list[int]:
+    """
+    Parse camera channel specification into a list of channel numbers.
+    
+    Supports comma-separated values and ranges (e.g., "1,2,4-6").
+    
+    Parameters
+    ----------
+    camera_arg : str
+        Camera channel specification. Can be:
+        - Single value: "1"
+        - Comma-separated: "1,2,3"
+        - Range: "4-6"
+        - Mixed: "1,2,4-6"
+    
+    Returns
+    -------
+    list[int]
+        Sorted, deduplicated list of camera channel numbers.
+    
+    Raises
+    ------
+    ValueError
+        If the input contains invalid values or ranges.
+    """
+    if not camera_arg:
+        return [1]
+    
+    channels: list[int] = []
+    parts = camera_arg.split(",")
+    
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        
+        if "-" in part:
+            # Handle range (e.g., "4-6")
+            range_parts = part.split("-", 1)
+            if len(range_parts) != 2:
+                raise ValueError(f"Invalid range format: {part}")
+            
+            try:
+                start = int(range_parts[0].strip())
+                end = int(range_parts[1].strip())
+            except ValueError as e:
+                raise ValueError(f"Invalid range values in '{part}': {e}") from e
+            
+            if start < 1 or end < 1:
+                raise ValueError(f"Camera channel numbers must be positive integers: {part}")
+            
+            if start > end:
+                raise ValueError(f"Range start must be <= end: {part}")
+            
+            channels.extend(range(start, end + 1))
+        else:
+            # Handle single value
+            try:
+                channel = int(part)
+            except ValueError as e:
+                raise ValueError(f"Invalid camera channel number: {part}") from e
+            
+            if channel < 1:
+                raise ValueError(f"Camera channel numbers must be positive integers: {part}")
+            
+            channels.append(channel)
+    
+    # Sort and deduplicate
+    return sorted(list(set(channels)))
+
+
+def resolve_camera_spec(
+    camera_arg: str,
+    auth_handler: Any,
+    camera_ip: str,
+) -> List[int]:
+    """
+    Resolve camera specification to channel IDs (uint).
+    
+    Supports both numeric channel specifications and camera name matching.
+    Camera names are only used for input selection - they resolve to channel IDs.
+    The actual download operations always use the numeric channel ID.
+    
+    Parameters
+    ----------
+    camera_arg : str
+        Camera specification. Can be:
+        - Numeric: "1", "1,2,3", "4-6" (channel numbers)
+        - Text: "Entrance", "cam1" (camera names with partial matching)
+    auth_handler : Any
+        Authentication handler for NVR connection (required for name matching).
+    camera_ip : str
+        IP address of the NVR device (required for name matching).
+    
+    Returns
+    -------
+    List[int]
+        List of camera channel IDs (uint).
+    
+    Raises
+    ------
+    ValueError
+        If the input is invalid, no matches found, or multiple partial matches.
+    """
+    if not camera_arg:
+        return [1]
+    
+    # Check if input is numeric (could be channel numbers)
+    parts = camera_arg.split(",")
+    is_numeric = True
+    
+    # Check if all parts are numeric (accounting for ranges)
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        if "-" in part:
+            # Check if range parts are numeric
+            range_parts = part.split("-", 1)
+            try:
+                int(range_parts[0].strip())
+                int(range_parts[1].strip())
+            except ValueError:
+                is_numeric = False
+                break
+        else:
+            try:
+                int(part)
+            except ValueError:
+                is_numeric = False
+                break
+    
+    # If numeric, use existing channel parsing
+    if is_numeric:
+        return parse_camera_channels(camera_arg)
+    
+    # Otherwise, treat as camera name(s) and match against NVR to get channel IDs
+    camera_list = CameraSdk.get_camera_info(auth_handler, camera_ip)
+    if not camera_list:
+        raise ValueError(
+            f"Could not retrieve camera list from NVR at {camera_ip}. "
+            "Cannot match camera names. Please use numeric channel numbers instead.",
+        )
+    
+    results: List[int] = []
+    input_parts = [p.strip() for p in parts if p.strip()]
+    
+    for input_part in input_parts:
+        # Try exact match first (case-insensitive)
+        exact_matches = [
+            cam for cam in camera_list
+            if cam["name"].lower() == input_part.lower()
+        ]
+        
+        if exact_matches:
+            if len(exact_matches) > 1:
+                raise ValueError(
+                    f"Multiple cameras found with exact name '{input_part}': "
+                    f"{[cam['name'] for cam in exact_matches]}",
+                )
+            cam = exact_matches[0]
+            results.append(cam["id"])
+            continue
+        
+        # Try partial matches (name starts with input, case-insensitive)
+        partial_matches = [
+            cam for cam in camera_list
+            if cam["name"].lower().startswith(input_part.lower())
+        ]
+        
+        if not partial_matches:
+            available_names = [cam["name"] for cam in camera_list]
+            raise ValueError(
+                f"No camera found matching '{input_part}'. "
+                f"Available cameras: {available_names}",
+            )
+        
+        if len(partial_matches) > 1:
+            matched_names = [cam["name"] for cam in partial_matches]
+            raise ValueError(
+                f"Multiple cameras match '{input_part}': {matched_names}. "
+                "Please use a more specific name.",
+            )
+        
+        # Single partial match found - use its channel ID
+        cam = partial_matches[0]
+        results.append(cam["id"])
+    
+    # Sort and deduplicate
+    return sorted(list(set(results)))
 
 
 def parse_parameters() -> Optional[Namespace]:
@@ -61,6 +255,7 @@ Examples:
   laview-cli 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
   laview-cli --camera 2 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
   laview-cli --camera 3 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
+  laview-cli --camera 1,2,4-6 10.145.17.202 "2020-04-15 00:30:00" "2020-04-15 10:59:59"
   LAVIEW_USER=admin LAVIEW_PASS=qwert123 laview-cli --camera 1 10.145.17.202 "2020-04-15 00:30:00"
   
         """
@@ -89,9 +284,11 @@ Examples:
     )
     parser.add_argument(
         "--camera",
-        type=int,
-        default=1,
-        help="camera channel number (default: 1, only used when not using --device)",
+        "--cam",
+        type=str,
+        default="1",
+        dest="camera",
+        help="camera channel number(s) or camera name(s) - supports comma-separated values and ranges for channels (e.g., '1,2,4-6') or camera names with partial matching (e.g., 'Entrance', 'cam1') (default: 1). Can override device config when used with --device.",
     )
 
     # Verbose levels
@@ -105,15 +302,38 @@ Examples:
 
     # Fix argument parsing for device mode
     if args.device:
-        # Extract datetime arguments from sys.argv
-        device_found = False
+        # Extract datetime arguments from sys.argv, skipping known options
         datetime_args = []
-        for arg in sys.argv:
+        i = 1  # Skip script name (sys.argv[0])
+        while i < len(sys.argv):
+            arg = sys.argv[i]
+            
+            # Skip --device and its value
             if arg == "--device":
-                device_found = True
+                i += 2  # Skip --device and device name
                 continue
-            if device_found and arg != args.device:
-                datetime_args.append(arg)
+            
+            # Skip --camera/--cam and its value
+            if arg in ("--camera", "--cam"):
+                i += 2  # Skip --camera/--cam and camera value
+                continue
+            if arg.startswith("--camera=") or arg.startswith("--cam="):
+                i += 1  # Skip --camera=VALUE (single argument)
+                continue
+            
+            # Skip --verbose/-v flags (they don't take values, but can be chained like -vvv)
+            if arg in ("--verbose", "-v") or (arg.startswith("-v") and all(c == "v" for c in arg[1:])):
+                i += 1
+                continue
+            
+            # Skip other known flags that don't take values
+            if arg in ("--setup", "--list-devices", "--remove-device", "--status"):
+                i += 1
+                continue
+            
+            # This is a positional argument (datetime string)
+            datetime_args.append(arg)
+            i += 1
 
         # Set the datetime arguments correctly
         if len(datetime_args) >= 1:
@@ -288,21 +508,52 @@ def main():
 
         # Use device configuration
         camera_ip = device_config["ip_address"]
-        camera_channel = device_config.get("camera_channel", 1)
-
+        device_name = parameters.device
+        
         # Set environment variables if credentials are stored
         if device_config.get("username"):
-            import os
             os.environ["LAVIEW_NVR_USER"] = device_config["username"]
 
         if device_config.get("password"):
-            import os
             os.environ["LAVIEW_NVR_PASS"] = device_config["password"]
 
         # Set timeout if configured
-        if device_config.get("timeout"):
-            from .camerasdk import CameraSdk
-            CameraSdk.init(device_config["timeout"])
+        timeout = device_config.get("timeout", CameraSdk.default_timeout_seconds)
+        CameraSdk.init(timeout)
+
+        # Get credentials
+        user_name = os.getenv("LAVIEW_NVR_USER")
+        user_password = os.getenv("LAVIEW_NVR_PASS")
+
+        if not user_name or not user_password:
+            print("Error: Username and password not found.")
+            print("Set credentials in device config or environment variables: LAVIEW_NVR_USER and LAVIEW_NVR_PASS")
+            return
+
+        # Authenticate to get auth_handler for camera name resolution
+        auth_type = CameraSdk.get_auth_type(camera_ip, user_name, user_password)
+        if auth_type == AuthType.UNAUTHORISED:
+            print("Error: Unauthorised! Check login and password")
+            return
+
+        auth_handler = CameraSdk.get_auth(auth_type, user_name, user_password)
+        
+        # Check if --camera/--cam flag was explicitly provided (override device config)
+        # Handle both --camera VALUE and --camera=VALUE formats
+        camera_override = any(
+            arg.startswith("--camera") or arg.startswith("--cam") for arg in sys.argv
+        )
+        if camera_override:
+            # Resolve camera spec (supports both numeric and name matching)
+            try:
+                camera_channels = resolve_camera_spec(parameters.camera, auth_handler, camera_ip)
+            except ValueError as e:
+                print(f"Error resolving camera specification: {e}")
+                return
+        else:
+            # Use device's configured camera_channel (single value)
+            camera_channel = device_config.get("camera_channel", 1)
+            camera_channels = [camera_channel]
 
         # Check if we have the required arguments
         if not parameters.START_DATETIME:
@@ -311,17 +562,30 @@ def main():
             return
 
         try:
-            # Initialize logger with verbose level
-            from .camerasdk import init
-            init(camera_ip, camera_channel, verbose_level=parameters.verbose)
-
             # Parse the datetime strings using flexible parser
             start_datetime_str, end_datetime_str = parse_datetime_strings(
                 parameters.START_DATETIME,
                 parameters.END_DATETIME,
             )
 
-            work(camera_ip, start_datetime_str, end_datetime_str, True, camera_channel)
+            # Process each camera channel
+            for camera_channel in camera_channels:
+                try:
+                    # Initialize logger with verbose level for this camera
+                    from .camerasdk import init
+                    init(camera_ip, camera_channel, verbose_level=parameters.verbose)
+
+                    work(
+                        camera_ip, start_datetime_str, end_datetime_str, True, camera_channel,
+                        device_name=device_name,
+                    )
+                except KeyboardInterrupt:
+                    print("^-C: Exited")
+                    break
+                except Exception as e:
+                    print(f"Error processing camera {camera_channel}: {e}")
+                    # Continue with next camera instead of stopping
+                    continue
         except KeyboardInterrupt:
             print("^-C: Exited")
         except ValueError as e:
@@ -338,11 +602,13 @@ def main():
     try:
         parameters.utc = True
         camera_ip = parameters.IP
-        camera_channel = parameters.camera
-
-        # Initialize logger with verbose level
-        from .camerasdk import init
-        init(camera_ip, camera_channel, verbose_level=parameters.verbose)
+        
+        # Parse camera channels (supports multiple cameras)
+        try:
+            camera_channels = parse_camera_channels(parameters.camera)
+        except ValueError as e:
+            print(f"Error parsing camera channels: {e}")
+            return
 
         # Parse the datetime strings using flexible parser
         start_datetime_str, end_datetime_str = parse_datetime_strings(
@@ -350,7 +616,21 @@ def main():
             parameters.END_DATETIME,
         )
 
-        work(camera_ip, start_datetime_str, end_datetime_str, parameters.utc, camera_channel)
+        # Process each camera channel
+        for camera_channel in camera_channels:
+            try:
+                # Initialize logger with verbose level for this camera
+                from .camerasdk import init
+                init(camera_ip, camera_channel, verbose_level=parameters.verbose)
+
+                work(camera_ip, start_datetime_str, end_datetime_str, parameters.utc, camera_channel)
+            except KeyboardInterrupt:
+                print("^-C: Exited")
+                break
+            except Exception as e:
+                print(f"Error processing camera {camera_channel}: {e}")
+                # Continue with next camera instead of stopping
+                continue
 
     except KeyboardInterrupt:
         print("^-C: Exited")

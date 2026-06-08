@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from typing import Optional
 
 import requests
 
@@ -10,7 +11,14 @@ from .time_interval import TimeInterval
 from .utils import download_videos
 
 
-def work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time, camera_channel=1):
+def work(
+    camera_ip,
+    start_datetime_str,
+    end_datetime_str,
+    use_utc_time,
+    camera_channel=1,
+    device_name: Optional[str] = None,
+):
     logger = Logger.get_logger()
     try:
         logger.info(f"Processing IP {camera_ip}.")
@@ -53,7 +61,10 @@ def work(camera_ip, start_datetime_str, end_datetime_str, use_utc_time, camera_c
         logger.banter(f"📅 Converted time interval to UTC: {utc_time_interval}")
 
         tracks = get_all_tracks(auth_handler, camera_ip, utc_time_interval, camera_channel)
-        download_videos(tracks, auth_handler, camera_ip, camera_channel)
+        download_videos(
+            tracks, auth_handler, camera_ip, camera_channel,
+            device_name=device_name,
+        )
 
     except requests.exceptions.ConnectionError as e:
         logger.error(f"Connection error: {e}")

@@ -2,6 +2,7 @@ import os
 import subprocess
 import time
 from datetime import datetime
+from typing import Optional
 
 from .logging import LogPrinter, logging_wrapper
 
@@ -19,12 +20,49 @@ MAX_VIDEOS_NUMBER_IN_ONE_REQUEST = 50  # Reduced from 100 for better stability
 video_file_extension = ".mp4"
 
 
-def get_path_to_video_archive(cam_ip: str, camera_channel: int = 1):
+def get_path_to_video_archive(
+    cam_ip: str,
+    camera_channel: int = 1,
+    device_name: Optional[str] = None,
+) -> str:
+    """
+    Get the path to the video archive directory.
+    
+    Parameters
+    ----------
+    cam_ip : str
+        IP address of the camera/NVR.
+    camera_channel : int, optional
+        Camera channel number (uint), by default 1.
+    device_name : Optional[str], optional
+        Device name when using --device mode (e.g., "shop"), by default None.
+    
+    Returns
+    -------
+    str
+        Path to the video archive directory.
+        - Device mode: video/{device_name}/camera{camera_channel}
+        - Legacy IP mode: video/{cam_ip}/camera{camera_channel}
+    """
+    # When using device mode (device_name provided)
+    if device_name:
+        return os.path.join(path_to_video_archive, device_name, f"camera{camera_channel}")
+    
+    # Legacy IP mode: use IP address
     return os.path.join(path_to_video_archive, cam_ip, f"camera{camera_channel}")
 
 
-def download_videos(tracks, auth_handler, cam_ip, camera_channel=1):
-    download_tracks(tracks, auth_handler, cam_ip, camera_channel)
+def download_videos(
+    tracks,
+    auth_handler,
+    cam_ip,
+    camera_channel=1,
+    device_name: Optional[str] = None,
+):
+    download_tracks(
+        tracks, auth_handler, cam_ip, camera_channel,
+        device_name=device_name,
+    )
 
 
 def create_directory_for(file_path):
@@ -98,24 +136,40 @@ def set_video_exif_metadata(file_path: str, start_datetime: datetime) -> bool:
 
 
 @logging_wrapper(before=LogPrinter.download_tracks)
-def download_tracks(tracks, auth_handler, cam_ip, camera_channel=1):
+def download_tracks(
+    tracks,
+    auth_handler,
+    cam_ip,
+    camera_channel=1,
+    device_name: Optional[str] = None,
+):
     for track in tracks:
         # TODO retry only N times
         while True:
-            if download_file_with_retry(auth_handler, cam_ip, track, camera_channel):
+            if download_file_with_retry(
+                auth_handler, cam_ip, track, camera_channel,
+                device_name=device_name,
+            ):
                 break
             time.sleep(DELAY_AFTER_TIMEOUT_SECONDS)
 
         time.sleep(DELAY_BETWEEN_DOWNLOADING_FILES_SECONDS)
 
 
-def download_file_with_retry(auth_handler, cam_ip, track, camera_channel=1):
+def download_file_with_retry(
+    auth_handler,
+    cam_ip,
+    track,
+    camera_channel=1,
+    device_name: Optional[str] = None,
+):
     from .camerasdk import CameraSdk
 
     time_interval = track.get_time_interval().to_local_time()
     start_time_text = time_interval.to_filename_text()
     file_name = os.path.join(
-        get_path_to_video_archive(cam_ip, camera_channel), start_time_text + video_file_extension,
+        get_path_to_video_archive(cam_ip, camera_channel, device_name=device_name),
+        start_time_text + video_file_extension,
     )
     url_to_download = track.url_to_download()
 
